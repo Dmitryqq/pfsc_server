@@ -12,15 +12,16 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "users")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class Role implements Serializable {
+public class User implements Serializable {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-
+    
     public Long getId() {
         return id;
     }
@@ -29,11 +30,11 @@ public class Role implements Serializable {
         this.id = id;
     }
 
-    public String getRoleName() {
+    public String getName() {
         return name;
     }
 
-    public void setRoleName(String name) {
+    public void setName(String name) {
         this.name = name;
-    }
+    }  
 }
