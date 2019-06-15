@@ -17,8 +17,11 @@ import javax.persistence.*;
 @EqualsAndHashCode(of = {"id"})
 public class Role implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false, nullable = false)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
 
     public Long getId() {

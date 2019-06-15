@@ -6,7 +6,12 @@
 package com.pfsc_server.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
@@ -16,12 +21,39 @@ import javax.persistence.*;
 @ToString()
 @EqualsAndHashCode(of = {"id"})
 public class User implements Serializable {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false, nullable = false)
     private Long id;
+
+    @Column(nullable = false)
+    private String login;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
     private String name;
-    
+    private String email;
+
+    @Column(updatable = false, insertable = false, nullable = false)
+    private Long role_id;
+
+    @ManyToOne
+//            (optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+    private boolean enabled;
+
+    @Column(updatable = false, nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime create_date;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime update_date;
+
     public Long getId() {
         return id;
     }
@@ -30,11 +62,59 @@ public class User implements Serializable {
         this.id = id;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }  
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Long getRole_id(){return role_id;}
+
+    public void setRole_id(Long role_id){this.role_id = role_id; }
+
+    public Role getRole(){return role;}
+
+    public void setRole(Role role){this.role = role;}
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public LocalDateTime getCreate_date(){return create_date;}
+
+    public void setCreate_date(LocalDateTime create_date) {this.create_date = create_date;}
+
+    public LocalDateTime getUpdate_date(){return update_date;}
+
+    public void setUpdate_date(LocalDateTime update_date) {this.update_date = update_date;}
 }
