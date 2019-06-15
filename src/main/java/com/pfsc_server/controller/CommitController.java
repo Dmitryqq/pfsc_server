@@ -30,12 +30,6 @@ public class CommitController {
         this.commitRepo = commitRepo;
         this.configRepo = configRepo;
         this.userRepo = userRepo;
-    }
-    
-    String getDateString(LocalDateTime locDate) {
-        String day = (locDate.getDayOfMonth() < 10 ? "0" : "") + locDate.getDayOfMonth(); 
-        String month = (locDate.getMonthValue() < 10 ? "0" : "") + locDate.getMonthValue(); 
-        return  day + "." + month + "." + locDate.getYear();
     }   
     
     @GetMapping
@@ -55,22 +49,84 @@ public class CommitController {
         
         Config rootDir = configRepo.findById(1L).orElse(null);
         if(rootDir == null) {
-            return null;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
         User user = userRepo.findById(commit.getUser_id()).orElse(null);
+        commit.setUser(user);
         commit.setCreate_date(LocalDateTime.now());
         
         int n = commitRepo.CountUserCommits(commit.getCreate_date(), commit.getUser_id());      
         commit.setNumber(n+1);
-        
-        File folders = new File(rootDir.getValue()+"\\"+ getDateString(commit.getCreate_date())+"\\"+ user.getName() + "\\" + commit.getNumber());       
+              
+        File folders = new File(commit.getDir(rootDir.getValue()));       
         if (folders.mkdirs()) {
-            commitRepo.save(commit);
+            commit = commitRepo.save(commit);
             return new ResponseEntity<>(commit,HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
+    }
+    
+    @PutMapping("{id}")
+    public ResponseEntity<Commit> update(@PathVariable("id") Long commitId, @RequestBody Commit commit){
+        Commit dbCommit = commitRepo.findById(commitId).orElse(null);
+        if(dbCommit == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        
+        if(dbCommit.getAccept_date()!=null || dbCommit.getReject_date()!=null)
+            return new ResponseEntity<>(HttpStatus.LOCKED);
+        
+        dbCommit.setDescription(commit.getDescription());
+        dbCommit.setUpdate_date(LocalDateTime.now());
+        commitRepo.save(dbCommit);      
+        return new ResponseEntity<>(dbCommit,HttpStatus.OK);
+    }
+    
+    @PutMapping("{id}/accept")
+    public ResponseEntity<Commit> accept(@PathVariable("id") Long commitId){
+        Commit dbCommit = commitRepo.findById(commitId).orElse(null);
+        if(dbCommit == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        
+        if(dbCommit.getAccept_date()!=null || dbCommit.getReject_date()!=null)
+            return new ResponseEntity<>(HttpStatus.LOCKED);
+        
+        dbCommit.setAccept_date(LocalDateTime.now());
+        dbCommit.setUpdate_date(LocalDateTime.now());
+        commitRepo.save(dbCommit);      
+        return new ResponseEntity<>(dbCommit,HttpStatus.OK);
+    }
+    
+    @PutMapping("{id}/reject")
+    public ResponseEntity<Commit> reject(@PathVariable("id") Long commitId){
+        Commit dbCommit = commitRepo.findById(commitId).orElse(null);
+        if(dbCommit == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        
+        if(dbCommit.getAccept_date()!=null || dbCommit.getReject_date()!=null)
+            return new ResponseEntity<>(HttpStatus.LOCKED);
+        
+        Config rootDir = configRepo.findById(1L).orElse(null);
+        if(rootDir == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        
+        if(!deleteDir(new File(dbCommit.getDir(rootDir.getValue()))))
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        
+        dbCommit.setReject_date(LocalDateTime.now());
+        dbCommit.setUpdate_date(LocalDateTime.now());
+        commitRepo.save(dbCommit);      
+        return new ResponseEntity<>(dbCommit,HttpStatus.OK);
+    }
+    
+    private boolean deleteDir(File f){
+        if (f.isDirectory()) {
+          for (File c : f.listFiles())
+            if(!deleteDir(c))
+                return false;
+        }
+        return f.delete();
     }
 }
