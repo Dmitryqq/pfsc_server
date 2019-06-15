@@ -28,9 +28,12 @@ public class Commit implements Serializable {
     @Column(nullable = false)
     private String description;   
     
-    @Basic(optional = false)
-    @Column(updatable = false, nullable = false)
-    private Long user_id;   
+    @Column(updatable = false, insertable = false, nullable = false)
+    private Long user_id;  
+    
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
     
     @Column(updatable = false, nullable = false)
     private int number;
@@ -109,8 +112,22 @@ public class Commit implements Serializable {
     public Long getUser_id() {
         return user_id;
     }
+    
+    public User getUser() {
+        return user;
+    }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    public String getDir(String rootDir) {
+        return rootDir + "\\" + getDateString(create_date) + "\\" + user.getName() + "\\" + number;
+    } 
+    
+    private String getDateString(LocalDateTime locDate) {
+        String day = (locDate.getDayOfMonth() < 10 ? "0" : "") + locDate.getDayOfMonth(); 
+        String month = (locDate.getMonthValue() < 10 ? "0" : "") + locDate.getMonthValue(); 
+        return  day + "." + month + "." + locDate.getYear();
     }
 }
