@@ -65,14 +65,17 @@ public class FileController {
         } else {
             List<File> asasfas = new ArrayList<File>();
             List<File> file = new ArrayList<File>();
-            Commit commit = commitsRepo.findById(fileId).orElse(null);
-            TypeOfFile typeOfFile = typeOfFileRepo.findById(commitId).orElse(null);
+            Commit commit = commitsRepo.findById(commitId).orElse(null);
+            TypeOfFile typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
             Config rootDir = configRepo.findById(1L).orElse(null);
             if (rootDir == null || commit == null || typeOfFile == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
                 java.io.File folders = new java.io.File(commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName());
-
+                if(!folders.exists())
+                {
+                    folders.mkdir();
+                }
                 for (MultipartFile uploadedFile : files) {
                     File tempFile = new File();
                     tempFile.setCommit_id(commitId);
@@ -115,6 +118,20 @@ public class FileController {
         fileRepo.delete(file);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    /*private boolean createDir(String dir){
+        File file = new File(dir);
+        if (file.mkdirs()) {
+            for (TypeOfFile tof : typeOfFileRepo.findAll()){
+                file = new File(dir + "\\" + tof.getName());
+                if(!file.mkdirs())
+                    return false;
+            }
+            return true;
+        }
+        else
+            return false;
+    }*/
 }
 
 
