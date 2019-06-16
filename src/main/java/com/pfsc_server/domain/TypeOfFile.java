@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "typeOfFiles")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class TypeOfFile {
+public class TypeOfFile implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

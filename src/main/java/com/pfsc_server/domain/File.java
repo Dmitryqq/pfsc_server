@@ -1,39 +1,61 @@
 package com.pfsc_server.domain;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 
 @Entity
 @Table(name = "files")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class File {
+public class File implements Serializable {
 
     @Id
-    @Setter
-    @Getter
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Setter
-    @Getter
-    private Long commitId;
 
-    @Setter
-    @Getter
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+
+    @Column(updatable = false, insertable = false, nullable = false)
+    private Long commit_id;
+
+
+    @ManyToOne
+    @JoinColumn(name = "commit_id")
+    private Commit commit;
+
+
+
+
+    @Column(updatable = false, insertable = false, nullable = false)
+    private Long file_id;
+
+    @ManyToOne
     @JoinColumn(name = "file_id")
-    private TypeOfFile fileId;
+    private TypeOfFile file;
 
-    @Setter
-    @Getter
+    @Column(updatable = false, nullable = false)
     private String path;
 
+    //Getter and Setters
+    public Long getFile_id() {
+        return file_id;
+    }
+
+    public Commit getCommit() {
+        return commit;
+    }
+
+    public void setCommit(Commit commit) {
+        this.commit = commit;
+    }
+
+    public Long getcommit_id() {
+        return commit_id;
+    }
 
     public Long getId() {
         return id;
@@ -43,15 +65,16 @@ public class File {
         this.id = id;
     }
 
-    public Long getCommitId() {
-        return commitId;
+    public void setCommit_id(Long commit_id) {
+        this.commit_id = commit_id;
     }
 
-    public void setCommitId(Long commitId) {
-        this.commitId = commitId;
+
+    public void setFile_id(Long file_id) {
+        this.file_id = file_id;
     }
 
-    public String getPath() {
+     public String getPath() {
         return path;
     }
 
@@ -59,12 +82,12 @@ public class File {
         this.path = path;
     }
 
-    public TypeOfFile getFileId() {
-        return fileId;
+    public TypeOfFile getFile() {
+        return file;
     }
 
-    public void setFileId(TypeOfFile fileId) {
-        this.fileId = fileId;
+    public void setFile(TypeOfFile fileId) {
+        this.file = fileId;
     }
 
 }
