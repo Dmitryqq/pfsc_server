@@ -24,12 +24,14 @@ public class CommitController {
     private final CommitsRepo commitRepo;
     private final ConfigsRepo configRepo;
     private final UsersRepo userRepo;
+    private final TypeOfFileRepo typeOfFileRepo;
     
     @Autowired
-    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo,UsersRepo userRepo) {
+    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo,UsersRepo userRepo,TypeOfFileRepo typeOfFileRepo) {
         this.commitRepo = commitRepo;
         this.configRepo = configRepo;
         this.userRepo = userRepo;
+        this.typeOfFileRepo = typeOfFileRepo;
     }   
     
     @GetMapping
@@ -58,9 +60,8 @@ public class CommitController {
         
         int n = commitRepo.CountUserCommits(commit.getCreate_date(), commit.getUser_id());      
         commit.setNumber(n+1);
-              
-        File folders = new File(commit.getDir(rootDir.getValue()));       
-        if (folders.mkdirs()) {
+                     
+        if (createDir(commit.getDir(rootDir.getValue()))) {
             commit = commitRepo.save(commit);
             return new ResponseEntity<>(commit,HttpStatus.CREATED);
         } else {
@@ -128,5 +129,19 @@ public class CommitController {
                 return false;
         }
         return f.delete();
+    }
+    
+    private boolean createDir(String dir){
+        File file = new File(dir);
+        if (file.mkdirs()) {
+            for (TypeOfFile tof : typeOfFileRepo.findAll()){
+                file = new File(dir + "\\" + tof.getName());
+                if(!file.mkdirs())
+                    return false;
+            }
+            return true;
+        }
+        else 
+            return false;
     }
 }
