@@ -8,8 +8,12 @@ package com.pfsc_server.controller;
 import com.pfsc_server.repo.*;
 import com.pfsc_server.domain.*;
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,6 +76,20 @@ public class CommitController {
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    @PostMapping("search")
+    public ResponseEntity<List<Commit>> search(@RequestBody Map<String, String> param) {
+        String sParam = param.get("param");
+        if(sParam == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        List<Commit> commits;
+        LocalDateTime date = convertToDate(sParam);
+        if(date != null)
+            commits = commitRepo.findByDescriptionOrCreateDate(sParam,date);
+        else 
+            commits = commitRepo.findByDescriptionContainingIgnoreCase(sParam);
+        return new ResponseEntity<>(commits, HttpStatus.OK); 
     }
     
     @PutMapping("{id}")
@@ -151,5 +169,17 @@ public class CommitController {
         }
         else 
             return false;
+    }
+    
+    private static LocalDateTime convertToDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(date.trim());
+        } catch (ParseException pe) {
+            return null;
+        }
+        return LocalDateTime.parse(date + " 00:00", formatter);
     }
 }

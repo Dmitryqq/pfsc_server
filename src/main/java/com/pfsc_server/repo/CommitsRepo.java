@@ -7,13 +7,17 @@ package com.pfsc_server.repo;
 
 import com.pfsc_server.domain.Commit;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface CommitsRepo extends JpaRepository<Commit, Long>{ 
     
-    @Query(value = "SELECT COUNT(*) FROM Commits a WHERE (DATE_PART('day',:create_date - a.create_date)+DATE_PART('hour',:create_date - a.create_date)/24+0.9)<1 and a.user_id = :user_id",  nativeQuery = true)
-    int CountUserCommits(@Param("create_date")LocalDateTime create_date,@Param("user_id") Long user_id);
+    @Query(value = "SELECT COUNT(*) FROM commits a WHERE (DATE_PART('day',?1 - a.create_date)+DATE_PART('hour',?1 - a.create_date)/24+0.9)<1 and a.user_id = ?2",  nativeQuery = true)
+    int CountUserCommits(LocalDateTime create_date,Long user_id);
     
+    List<Commit> findByDescriptionContainingIgnoreCase(String description);
+    
+    @Query(value = "SELECT * FROM commits a WHERE (DATE_PART('day',?2 - a.create_date)+DATE_PART('hour',?2 - a.create_date)/24+0.9)<1 or a.description LIKE %?1%",  nativeQuery = true)
+    List<Commit> findByDescriptionOrCreateDate(String param, LocalDateTime create_date);
 }
