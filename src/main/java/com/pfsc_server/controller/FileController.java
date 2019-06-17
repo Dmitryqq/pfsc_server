@@ -59,12 +59,11 @@ public class FileController {
 
 
     @PostMapping
-    public ResponseEntity<File > create(@RequestParam Long fileId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException {
+    public ResponseEntity<ArrayList<File>> create(@RequestParam Long fileId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException {
         if (fileId == null || commitId == null || files == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            List<File> asasfas = new ArrayList<File>();
-            List<File> file = new ArrayList<File>();
+            ArrayList<File> file = new ArrayList<>();
             Commit commit = commitsRepo.findById(commitId).orElse(null);
             TypeOfFile typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
             Config rootDir = configRepo.findById(1L).orElse(null);
@@ -87,10 +86,8 @@ public class FileController {
                     tempFile.setPath(pathFile);
                     file.add(tempFile);
                 }
-
                 fileRepo.saveAll(file);
-
-                return new ResponseEntity<>(file.get(1), HttpStatus.CREATED);
+                return new ResponseEntity<>(file, HttpStatus.CREATED);
             }
 
         }

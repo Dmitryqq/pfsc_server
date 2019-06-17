@@ -35,20 +35,27 @@ public class Commit implements Serializable {
     @JoinColumn(name="user_id")
     private User user;
     
+    @Column(updatable = false, insertable = false, nullable = false)
+    private Long mark_id;  
+    
+    @ManyToOne
+    @JoinColumn(name="mark_id")
+    private Mark mark;
+    
     @Column(updatable = false, nullable = false)
     private int number;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime accept_date;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime reject_date;
     
     @Column(updatable = false, nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime create_date;
     
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime update_date;
     
     // -------Getters and Setters-------
@@ -119,6 +126,22 @@ public class Commit implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+    
+    public Long getMark_id() {
+        return mark_id;
+    }
+    
+    public void setMark_id(Long mark_id) {
+        this.mark_id = mark_id;
+    }
+
+    public Mark getMark() {
+        return mark;
+    }
+
+    public void setMark(Mark mark) {
+        this.mark = mark;
     }
     
     public String getDir(String rootDir) {

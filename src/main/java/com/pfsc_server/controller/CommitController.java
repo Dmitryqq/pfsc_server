@@ -25,13 +25,15 @@ public class CommitController {
     private final ConfigsRepo configRepo;
     private final UsersRepo userRepo;
     private final TypeOfFileRepo typeOfFileRepo;
+    private final MarksRepo markRepo;
     
     @Autowired
-    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo,UsersRepo userRepo,TypeOfFileRepo typeOfFileRepo) {
+    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo,UsersRepo userRepo,TypeOfFileRepo typeOfFileRepo, MarksRepo markRepo) {
         this.commitRepo = commitRepo;
         this.configRepo = configRepo;
         this.userRepo = userRepo;
         this.typeOfFileRepo = typeOfFileRepo;
+        this.markRepo = markRepo;
     }   
     
     @GetMapping
@@ -50,12 +52,15 @@ public class CommitController {
         }
         
         Config rootDir = configRepo.findById(1L).orElse(null);
-        if(rootDir == null) {
+        User user = userRepo.findById(commit.getUser_id()).orElse(null);
+        Mark mark = markRepo.findById(commit.getMark_id()).orElse(null);
+        
+        if(rootDir == null || user == null || mark == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        User user = userRepo.findById(commit.getUser_id()).orElse(null);
         commit.setUser(user);
+        commit.setMark(mark);
         commit.setCreate_date(LocalDateTime.now());
         
         int n = commitRepo.CountUserCommits(commit.getCreate_date(), commit.getUser_id());      
@@ -72,13 +77,16 @@ public class CommitController {
     @PutMapping("{id}")
     public ResponseEntity<Commit> update(@PathVariable("id") Long commitId, @RequestBody Commit commit){
         Commit dbCommit = commitRepo.findById(commitId).orElse(null);
-        if(dbCommit == null)
+        Mark mark = markRepo.findById(commit.getMark_id()).orElse(null);
+        if(dbCommit == null || mark == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         
         if(dbCommit.getAccept_date()!=null || dbCommit.getReject_date()!=null)
             return new ResponseEntity<>(HttpStatus.LOCKED);
         
         dbCommit.setDescription(commit.getDescription());
+        dbCommit.setMark(mark);
+        dbCommit.setMark_id(mark.getId());
         dbCommit.setUpdate_date(LocalDateTime.now());
         commitRepo.save(dbCommit);      
         return new ResponseEntity<>(dbCommit,HttpStatus.OK);
