@@ -20,15 +20,34 @@ import javax.persistence.*;
 @Table(name = "users")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class User implements Serializable {
-
+public class ApplicationUser{
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private long id;
+//    private String username;
+//    private String password;
+//    public long getId() {
+//        return id;
+//    }
+//    public String getUsername() {
+//        return username;
+//    }
+//    public void setUsername(String username) {
+//        this.username = username;
+//    }
+//    public String getPassword() {
+//        return password;
+//    }
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
     private Long id;
 
     @Column(nullable = false)
-    private String login;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -58,16 +77,16 @@ public class User implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
+
+    public String getUsername() {
+        return username;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

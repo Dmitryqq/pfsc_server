@@ -6,13 +6,14 @@
 package com.pfsc_server.controller;
 
 import com.pfsc_server.domain.Role;
-import com.pfsc_server.domain.User;
+import com.pfsc_server.domain.ApplicationUser;
 import com.pfsc_server.repo.RolesRepo;
-import com.pfsc_server.repo.UsersRepo;
+import com.pfsc_server.repo.ApplicationUserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -24,20 +25,29 @@ import java.util.List;
 @RestController
 @RequestMapping("user")
 public class UserController {
-    private final UsersRepo userRepo;
-    private final RolesRepo rolesRepo;
-
-    @Autowired
-    public UserController(UsersRepo userRepo, RolesRepo rolesRepo) {
-        this.userRepo = userRepo;
+    private ApplicationUserRepository applicationUserRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private RolesRepo rolesRepo;
+    
+    public UserController(ApplicationUserRepository applicationUserRepository,
+                          BCryptPasswordEncoder bCryptPasswordEncoder,
+                          RolesRepo rolesRepo) {
+        this.applicationUserRepository = applicationUserRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.rolesRepo = rolesRepo;
     }
 
 
+//    @Autowired
+//    public UserController(ApplicationUserRepository applicationUserRepository, RolesRepo rolesRepo) {
+//        this.applicationUserRepository = applicationUserRepository;
+//    }
+
+
 
     @GetMapping
-    public  ResponseEntity<List<User>> list() {
-        List<User> users = userRepo.findAll();
+    public  ResponseEntity<List<ApplicationUser>> list() {
+        List<ApplicationUser> users = applicationUserRepository.findAll();
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -46,11 +56,11 @@ public class UserController {
 
     //@JsonView(Views.FullUser.class)
     @GetMapping("{id}")
-    public ResponseEntity<User> getOne(@PathVariable("id") Long userId) {
+    public ResponseEntity<ApplicationUser> getOne(@PathVariable("id") Long userId) {
         if (userId == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        User user = userRepo.findById(userId).orElse(null);
+        ApplicationUser user = applicationUserRepository.findById(userId).orElse(null);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -58,59 +68,50 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
+    public ResponseEntity<ApplicationUser> create(@RequestBody ApplicationUser user) {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        user.setPassword(getMd5(user.getPassword())); //password to md5
         Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setRole(role);
         user.setCreate_date(LocalDateTime.now());
-        userRepo.save(user);
+        applicationUserRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<User> update(
+    public ResponseEntity<ApplicationUser> update(
             @PathVariable("id") Long userId,
-            @RequestBody User user
+            @RequestBody ApplicationUser user
     ) {
-        User userFromDb = userRepo.findById(userId).orElse(null);
+        ApplicationUser userFromDb = applicationUserRepository.findById(userId).orElse(null);
         if (userFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         BeanUtils.copyProperties(user, userFromDb, "id");
-        userFromDb.setPassword(getMd5(user.getPassword()));
         Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
         userFromDb.setRole(role);
         userFromDb.setUpdate_date(LocalDateTime.now());
-        userRepo.save(userFromDb);
+        applicationUserRepository.save(userFromDb);
         return new ResponseEntity<>(userFromDb, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<User> delete(@PathVariable("id") Long userId) {
-        User user = userRepo.findById(userId).orElse(null);
+    public ResponseEntity<ApplicationUser> delete(@PathVariable("id") Long userId) {
+        ApplicationUser user = applicationUserRepository.findById(userId).orElse(null);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        userRepo.delete(user);
+        applicationUserRepository.delete(user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    public static String getMd5(String input)
-    {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] messageDigest = md.digest(input.getBytes());
-            BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-            return hashtext;
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+    @PostMapping("/sign-up")
+    public void signUp(@RequestBody ApplicationUser user) {
+        Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setRole(role);
+        user.setCreate_date(LocalDateTime.now());
+        applicationUserRepository.save(user);
     }
 }

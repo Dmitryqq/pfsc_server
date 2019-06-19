@@ -33,7 +33,7 @@ public class Commit implements Serializable {
     
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user;
+    private ApplicationUser user;
     
     @Column(updatable = false, nullable = false)
     private int number;
@@ -113,17 +113,17 @@ public class Commit implements Serializable {
         return user_id;
     }
     
-    public User getUser() {
+    public ApplicationUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(ApplicationUser user) {
         this.user = user;
     }
-    
+
     public String getDir(String rootDir) {
         return rootDir + "\\" + getDateString(create_date) + "\\" + user.getName() + "\\" + number;
-    } 
+    }
     
     private String getDateString(LocalDateTime locDate) {
         String day = (locDate.getDayOfMonth() < 10 ? "0" : "") + locDate.getDayOfMonth(); 

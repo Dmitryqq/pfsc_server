@@ -23,14 +23,14 @@ import org.springframework.web.bind.annotation.*;
 public class CommitController {
     private final CommitsRepo commitRepo;
     private final ConfigsRepo configRepo;
-    private final UsersRepo userRepo;
-    
+    private final ApplicationUserRepository userRepo;
+
     @Autowired
-    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo,UsersRepo userRepo) {
+    public CommitController(CommitsRepo commitRepo, ConfigsRepo configRepo, ApplicationUserRepository userRepo) {
         this.commitRepo = commitRepo;
         this.configRepo = configRepo;
         this.userRepo = userRepo;
-    }   
+    }
     
     @GetMapping
     public  ResponseEntity<List<Commit>> list() {
@@ -52,7 +52,7 @@ public class CommitController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
-        User user = userRepo.findById(commit.getUser_id()).orElse(null);
+        ApplicationUser user = userRepo.findById(commit.getUser_id()).orElse(null);
         commit.setUser(user);
         commit.setCreate_date(LocalDateTime.now());
         
