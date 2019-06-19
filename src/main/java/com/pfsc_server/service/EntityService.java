@@ -18,7 +18,7 @@ public interface EntityService<T,S> {
     
     T getById(S id);
     
-    void save(T t);
+    T save(T t);
 
     void delete(S id);
     
