@@ -12,7 +12,7 @@ import java.util.List;
  * @param <T>
  * @param <S>
  */
-public interface Service<T,S> {
+public interface EntityService<T,S> {
     
     List<T> getAll();
     
