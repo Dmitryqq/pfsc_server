@@ -6,6 +6,7 @@
 package com.pfsc_server.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.pfsc_server.util.DateUtil;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.EqualsAndHashCode;
@@ -145,12 +146,7 @@ public class Commit implements Serializable {
     }
     
     public String getDir(String rootDir) {
-        return rootDir + "\\" + getDateString(create_date) + "\\" + user.getName() + "\\" + number;
+        return rootDir + "\\" + DateUtil.getDateString(create_date,".") + "\\" + user.getName() + "\\" + number;
     } 
-    
-    private String getDateString(LocalDateTime locDate) {
-        String day = (locDate.getDayOfMonth() < 10 ? "0" : "") + locDate.getDayOfMonth(); 
-        String month = (locDate.getMonthValue() < 10 ? "0" : "") + locDate.getMonthValue(); 
-        return  day + "." + month + "." + locDate.getYear();
-    }
+  
 }
