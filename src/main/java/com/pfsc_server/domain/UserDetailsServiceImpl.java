@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.pfsc_server.repo.ApplicationUserRepository;
 
 import static java.util.Collections.emptyList;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private ApplicationUserRepository applicationUserRepository;
