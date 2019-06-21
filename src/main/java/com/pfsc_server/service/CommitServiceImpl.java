@@ -6,19 +6,18 @@
 package com.pfsc_server.service;
 
 import com.pfsc_server.domain.*;
+import com.pfsc_server.repo.CommitHistoryRepo;
 import com.pfsc_server.repo.CommitsRepo;
 import com.pfsc_server.repo.ConfigsRepo;
 import com.pfsc_server.repo.MarksRepo;
 import com.pfsc_server.repo.TypeOfFileRepo;
 import com.pfsc_server.repo.UsersRepo;
-import com.pfsc_server.util.DateUtil;
-import com.pfsc_server.util.FileUtil;
+import com.pfsc_server.util.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 /**
  *
  * @author User
@@ -36,27 +35,46 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     TypeOfFileRepo typeOfFileRepo;
     @Autowired
     MarksRepo markRepo;
+    @Autowired
+    CommitHistoryRepo historyRepo;
     
     @Override
     public List<Commit> getAll() {
         return commitRepo.findAll();
     }
+    
+    @Override
+    public List<CommitDto> getDtoAll() {
+        List<CommitDto> commits = commitRepo.findWithHistory();
+        return commits;
+    }
 
     @Override
     public Commit getById(Long id) {
-        return commitRepo.findById(id).orElse(null);  
+        Commit commit = commitRepo.findById(id).orElse(null);  
+        return commit;   
     }
     
+    @Override
+    public CommitDto getDtoById(Long id) {
+        CommitDto commit = commitRepo.findByIdWithHistory(id);  
+        return commit;   
+    }
+    
+    @Override
     public Commit create(Commit t) throws IOException{
         Config rootDir = configRepo.findById(1L).orElse(null);
-        User user = userRepo.findById(t.getUser_id()).orElse(null);
-        Mark mark = markRepo.findById(t.getMark_id()).orElse(null);
+        User user = userRepo.findById(t.getUserId()).orElse(null);
+        Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if(rootDir == null || user == null || mark == null) 
             return null;
         t.setMark(mark);
         t.setUser(user);
-        t.setCreate_date(LocalDateTime.now());
-        int n = commitRepo.CountUserCommits(t.getCreate_date(), t.getUser_id());      
+        t.setCreateDate(LocalDateTime.now());
+        String dateString = DateUtil.getDateString(LocalDateTime.now(), "-");
+        LocalDateTime startDate = DateUtil.convertToDate(dateString + " 00:00","dd-MM-yyyy HH:mm");
+        LocalDateTime endDate = DateUtil.convertToDate(dateString + " 23:59","dd-MM-yyyy HH:mm");
+        int n = commitRepo.CountUserCommits(t.getUserId(), startDate, endDate);      
         t.setNumber(n+1);
         for(TypeOfFile tof : typeOfFileRepo.findAll())
             FileUtil.createDir(t.getDir(rootDir.getValue())+"\\"+tof.getName());       
@@ -64,25 +82,32 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     }
 
     @Override
-    public List<Commit> find(String description) {
-        LocalDateTime date = DateUtil.convertToDate(description,"dd-MM-yyyy");
-        if(date != null)
-            return commitRepo.findByDescriptionOrCreateDate(description,date);
+    public List<CommitDto> find(String description) {
+        LocalDateTime startDate = DateUtil.convertToDate(description+" 00:00","dd-MM-yyyy HH:mm");
+        if(startDate != null)
+        {
+            LocalDateTime endDate = DateUtil.convertToDate(description+" 23:59","dd-MM-yyyy HH:mm");
+            return commitRepo.findByDescriptionOrCreateDate(description,startDate,endDate);
+        }
         else 
-            return commitRepo.findByDescriptionContainingIgnoreCase(description);
+            return commitRepo.findByDescriptionContaining(description);
     }
     
     @Override
-    public Commit update(Long id, Commit t) {
+    public Commit update(Long id, Commit t) throws Exception{
         Commit commit = commitRepo.findById(id).orElse(null);
-        Mark mark = markRepo.findById(t.getMark_id()).orElse(null);
+        Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if( commit == null || mark == null)
+            throw new Exception("Bad request");
+        if(historyRepo.findByCommitId(id).isEmpty()){
+            commit.setDescription(t.getDescription());
+            commit.setMark(mark);
+            commit.setMarkId(mark.getId());
+            commit.setUpdateDate(LocalDateTime.now());
+            return commitRepo.save(commit);   
+        }
+        else
             return null;
-        commit.setDescription(t.getDescription());
-        commit.setMark(mark);
-        commit.setMark_id(mark.getId());
-        commit.setUpdate_date(LocalDateTime.now());
-        return commitRepo.save(commit);    
     }
 
     @Override

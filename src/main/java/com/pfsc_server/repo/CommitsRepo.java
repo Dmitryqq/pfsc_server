@@ -6,6 +6,7 @@
 package com.pfsc_server.repo;
 
 import com.pfsc_server.domain.Commit;
+import com.pfsc_server.domain.CommitDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,11 +14,20 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CommitsRepo extends JpaRepository<Commit, Long>{ 
     
-    @Query(value = "SELECT COUNT(*) FROM commits a WHERE (DATE_PART('day',?1 - a.create_date)+DATE_PART('hour',?1 - a.create_date)/24+0.9)<1 and a.user_id = ?2",  nativeQuery = true)
-    int CountUserCommits(LocalDateTime create_date,Long user_id);
+    static final String joinQuery = "select new com.pfsc_server.domain.CommitDto(a,b.accepted) from Commit a left join CommitHistory b on b.commitId = a.id and b.createDate = (select max(ch.createDate) from CommitHistory ch where ch.commitId = a.id)";
     
-    List<Commit> findByDescriptionContainingIgnoreCase(String description);
+    @Query("select count(a) from Commit a where (a.createDate between ?2 and ?3) and (a.userId = ?1)")
+    int CountUserCommits(Long user_id, LocalDateTime startDate, LocalDateTime endDate);
     
-    @Query(value = "SELECT * FROM commits a WHERE (DATE_PART('day',?2 - a.create_date)+DATE_PART('hour',?2 - a.create_date)/24+0.9)<1 or a.description LIKE %?1%",  nativeQuery = true)
-    List<Commit> findByDescriptionOrCreateDate(String param, LocalDateTime create_date);
+    @Query(joinQuery + " where a.description like %?1%")
+    List<CommitDto> findByDescriptionContaining(String description);
+    
+    @Query(joinQuery + " where a.description like %?1% or a.createDate between ?2 and ?3")
+    List<CommitDto> findByDescriptionOrCreateDate(String param, LocalDateTime startDate, LocalDateTime endDate);
+    
+    @Query(joinQuery)
+    List<CommitDto> findWithHistory();
+    
+    @Query(joinQuery +" where a.id=?1")
+    CommitDto findByIdWithHistory(Long id);
 }

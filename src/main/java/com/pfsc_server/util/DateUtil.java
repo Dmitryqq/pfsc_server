@@ -31,6 +31,6 @@ public class DateUtil {
         } catch (ParseException pe) {
             return null;
         }
-        return LocalDateTime.parse(date + " 00:00", formatter);
+        return LocalDateTime.parse(date, formatter);
     }
 }

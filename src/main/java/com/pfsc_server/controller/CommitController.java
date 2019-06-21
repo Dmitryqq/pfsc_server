@@ -26,13 +26,13 @@ public class CommitController {
     CommitServiceImpl commitService;
       
     @GetMapping
-    public  ResponseEntity<List<Commit>> list() {
-        return new ResponseEntity<>(commitService.getAll(),HttpStatus.OK);
+    public  ResponseEntity<List<CommitDto>> list() {
+        return new ResponseEntity<>(commitService.getDtoAll(),HttpStatus.OK);
     }
     
     @GetMapping("{id}")
-    public ResponseEntity<Commit> getCommit(@PathVariable("id") Long commitId){
-        Commit commit = commitService.getById(commitId);
+    public ResponseEntity<CommitDto> getCommit(@PathVariable("id") Long commitId){
+        CommitDto commit = commitService.getDtoById(commitId);
         if(commit==null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(commit,HttpStatus.OK);
@@ -56,7 +56,7 @@ public class CommitController {
     }
     
     @PostMapping("search")
-    public ResponseEntity<List<Commit>> search(@RequestBody Map<String, String> param) {
+    public ResponseEntity<List<CommitDto>> search(@RequestBody Map<String, String> param) {
         String sParam = param.get("param");
         if(sParam == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -68,7 +68,15 @@ public class CommitController {
         Commit dbCommit = commitService.getById(commitId);
         if(dbCommit == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(commitService.update(commitId, commit),HttpStatus.OK);
+        try{
+            dbCommit = commitService.update(commitId, commit);
+            if(dbCommit==null)
+                return new ResponseEntity<>(HttpStatus.LOCKED);
+            return new ResponseEntity<>(dbCommit,HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
     
 }

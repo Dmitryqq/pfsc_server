@@ -6,6 +6,8 @@
 package com.pfsc_server.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pfsc_server.util.DateUtil;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,6 +20,9 @@ import javax.persistence.*;
 @Table(name = "commits")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id")
 public class Commit implements Serializable {
    
     // ----------Columns-------------
@@ -29,35 +34,30 @@ public class Commit implements Serializable {
     @Column(nullable = false)
     private String description;   
     
-    @Column(updatable = false, insertable = false, nullable = false)
-    private Long user_id;  
+    @Column(updatable = false, insertable = false, nullable = false, name="user_id")
+    private Long userId;  
     
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
     
-    @Column(updatable = false, insertable = false, nullable = false)
-    private Long mark_id;  
+    @Column(updatable = false, insertable = false, nullable = false, name="mark_id")
+    private Long markId;  
     
     @ManyToOne
     @JoinColumn(name="mark_id")
     private Mark mark;
-    
+       
     @Column(updatable = false, nullable = false)
     private int number;
     
+    @Column(updatable = false, nullable = false, name="create_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime accept_date;
+    private LocalDateTime createDate;
     
+    @Column(name="update_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime reject_date;
-    
-    @Column(updatable = false, nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime create_date;
-    
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime update_date;
+    private LocalDateTime updateDate;
     
     // -------Getters and Setters-------
 
@@ -85,40 +85,24 @@ public class Commit implements Serializable {
         this.number = number;
     }
 
-    public LocalDateTime getAccept_date() {
-        return accept_date;
+    public LocalDateTime getCreateDate() {
+        return createDate;
     }
 
-    public void setAccept_date(LocalDateTime accept_date) {
-        this.accept_date = accept_date;
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 
-    public LocalDateTime getReject_date() {
-        return reject_date;
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
     }
 
-    public void setReject_date(LocalDateTime reject_date) {
-        this.reject_date = reject_date;
-    }
-
-    public LocalDateTime getCreate_date() {
-        return create_date;
-    }
-
-    public void setCreate_date(LocalDateTime create_date) {
-        this.create_date = create_date;
-    }
-
-    public LocalDateTime getUpdate_date() {
-        return update_date;
-    }
-
-    public void setUpdate_date(LocalDateTime update_date) {
-        this.update_date = update_date;
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
     }
     
-    public Long getUser_id() {
-        return user_id;
+    public Long getUserId() {
+        return userId;
     }
     
     public User getUser() {
@@ -129,12 +113,12 @@ public class Commit implements Serializable {
         this.user = user;
     }
     
-    public Long getMark_id() {
-        return mark_id;
+    public Long getMarkId() {
+        return markId;
     }
     
-    public void setMark_id(Long mark_id) {
-        this.mark_id = mark_id;
+    public void setMarkId(Long markId) {
+        this.markId = markId;
     }
 
     public Mark getMark() {
@@ -146,7 +130,7 @@ public class Commit implements Serializable {
     }
     
     public String getDir(String rootDir) {
-        return rootDir + "\\" + DateUtil.getDateString(create_date,".") + "\\" + user.getName() + "\\" + number;
+        return rootDir + "\\" + DateUtil.getDateString(createDate,".") + "\\" + user.getName() + "\\" + number;
     } 
   
 }
