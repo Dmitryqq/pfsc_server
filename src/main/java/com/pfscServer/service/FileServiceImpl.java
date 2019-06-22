@@ -11,7 +11,6 @@ import com.pfscServer.repo.TypeOfFileRepo;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -31,8 +30,6 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     private TypeOfFileRepo typeOfFileRepo;
     @Autowired
     private CommitsRepo commitsRepo;
-
-    private FileUtil fileUtil;
 
     @Override
     public List<File> getAll() {
@@ -83,11 +80,11 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 return file;
             } else {
                 String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
-                fileUtil.directoryExist(path);
+                FileUtil.directoryExist(path);
                 //Кол-во файлов по данному commit id
                 List<String> allFile = fileRepo.allFiles(commitId, fileId);
                 //лист байтов
-                List<byte[]> listByte = new ArrayList<byte[]>();
+                List<byte[]> listByte = new ArrayList<>();
 
                 /*
                 //При помощи java.nio выборка файлов
@@ -126,8 +123,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 for (MultipartFile uploadFile : files) {
                     String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
                     Integer counts = 0;
-                    for (int i = 0; i < arrStrings1.length; i++) {
-                        if (tempType.equals(arrStrings1[i])) {
+                    for (String arrStrings11 : arrStrings1) {
+                        if (tempType.equals(arrStrings11)) {
                             counts++;
                         }
                     }
@@ -180,7 +177,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
     @Override
     public void deleteByCommit(Long commitId) {
-        List<File> file = fileRepo.commits(commitId);
+        List<File> file = fileRepo.findByCommitId(commitId);
         fileRepo.deleteAll(file);
     }
 }

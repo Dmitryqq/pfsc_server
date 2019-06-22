@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.service;
+package com.pfscServer.service;
 
-import com.pfsc_server.domain.CommitHistory;
+import com.pfscServer.domain.CommitHistory;
+import java.io.IOException;
 
 /**
  *
@@ -13,7 +14,7 @@ import com.pfsc_server.domain.CommitHistory;
  */
 public interface CommitHistoryService {
     
-    CommitHistory acceptCommit(Long id);
+    CommitHistory acceptCommit(Long id) throws Exception;
     
-    CommitHistory rejectCommit(Long id);
+    CommitHistory rejectCommit(Long id) throws IOException;
 }

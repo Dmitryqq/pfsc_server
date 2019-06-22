@@ -1,5 +1,8 @@
 package com.pfscServer.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,6 +14,9 @@ import java.io.Serializable;
 @Table(name = "files")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id")
 public class File implements Serializable {
 
     @Id
@@ -21,7 +27,7 @@ public class File implements Serializable {
     @Column(updatable = false, insertable = false, nullable = false, name = "commit_id")
     private Long commitId;
 
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "commit_id")
     private Commit commit;

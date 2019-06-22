@@ -5,8 +5,8 @@
  */
 package com.pfscServer.service;
 
-import com.pfsc_server.domain.Commit;
-import com.pfsc_server.domain.CommitDto;
+import com.pfscServer.domain.Commit;
+import com.pfscServer.domain.CommitDto;
 import java.io.IOException;
 import java.util.List;
 

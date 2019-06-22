@@ -3,11 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.domain;
+package com.pfscServer.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -27,6 +29,15 @@ public class CommitDto implements Serializable{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime updateDate;
     private Boolean accepted;
+    private List<File>files = new ArrayList();
+
+    public List<File> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<File> files) {
+        this.files = files;
+    }
     
     public CommitDto(Commit commit, Boolean accepted) {
         this.id = commit.getId();
@@ -39,6 +50,7 @@ public class CommitDto implements Serializable{
         this.createDate = commit.getCreateDate();
         this.updateDate = commit.getUpdateDate();
         this.accepted = accepted;
+        this.files = commit.getFiles();
     }
     
     public Long getId() {

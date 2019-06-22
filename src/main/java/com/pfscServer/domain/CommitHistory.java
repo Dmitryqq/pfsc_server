@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.domain;
+package com.pfscServer.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -12,12 +12,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import javax.persistence.*;
 /**
  *
  * @author User
  */
-import javax.persistence.*;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "commitHistory")

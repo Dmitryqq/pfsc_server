@@ -5,14 +5,14 @@
  */
 package com.pfscServer.service;
 
-import com.pfsc_server.domain.*;
-import com.pfsc_server.repo.CommitHistoryRepo;
-import com.pfsc_server.repo.CommitsRepo;
-import com.pfsc_server.repo.ConfigsRepo;
-import com.pfsc_server.repo.MarksRepo;
-import com.pfsc_server.repo.TypeOfFileRepo;
-import com.pfsc_server.repo.UsersRepo;
-import com.pfsc_server.util.*;
+import com.pfscServer.domain.*;
+import com.pfscServer.repo.CommitHistoryRepo;
+import com.pfscServer.repo.CommitsRepo;
+import com.pfscServer.repo.ConfigsRepo;
+import com.pfscServer.repo.MarksRepo;
+import com.pfscServer.repo.TypeOfFileRepo;
+import com.pfscServer.repo.UsersRepo;
+import com.pfscServer.util.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
