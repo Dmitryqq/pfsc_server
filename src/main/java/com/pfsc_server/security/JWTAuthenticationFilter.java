@@ -2,6 +2,7 @@ package com.pfsc_server.security;
 
 import com.pfsc_server.domain.ApplicationUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pfsc_server.repo.ApplicationUserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,9 +25,12 @@ import static com.pfsc_server.security.SecurityConstants.TOKEN_PREFIX;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private AuthenticationManager authenticationManager;
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private ApplicationUserRepository applicationUserRepository;
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, ApplicationUserRepository applicationUserRepository) {
         this.authenticationManager = authenticationManager;
+        this.applicationUserRepository = applicationUserRepository;
     }
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
@@ -48,8 +52,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
+        ApplicationUser user;
+        user = applicationUserRepository.findByUsername(((User) auth.getPrincipal()).getUsername());
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
+                .claim("id", user.getId())  //Добавление кастомного поля в токен
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
