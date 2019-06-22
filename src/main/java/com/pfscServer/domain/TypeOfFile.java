@@ -1,10 +1,11 @@
 
-package com.pfsc_server.domain;
+package com.pfscServer.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
@@ -12,18 +13,18 @@ import java.time.LocalDateTime;
 @Table(name = "typeOfFiles")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class TypeOfFile {
+public class TypeOfFile implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String  name;
-    private Long max_size;
+    private Long maxSize;
     private boolean required;
     private String type;
-    private int max_amount;
-    private LocalDateTime create_date;
-    private LocalDateTime update_date;
+    private int maxAmount;
+    private LocalDateTime createDate;
+    private LocalDateTime updateDate;
 
 
     public Long getId() {
@@ -42,12 +43,12 @@ public class TypeOfFile {
         this.name = name;
     }
 
-    public Long getMax_size() {
-        return max_size;
+    public Long getMaxSize() {
+        return maxSize;
     }
 
-    public void setMax_size(Long max_size) {
-        this.max_size = max_size;
+    public void setMaxSize(Long maxSize) {
+        this.maxSize = maxSize;
     }
 
     public boolean isRequired() {
@@ -66,28 +67,28 @@ public class TypeOfFile {
         this.type = type;
     }
 
-    public int getMax_amount() {
-        return max_amount;
+    public int getMaxAmount() {
+        return maxAmount;
     }
 
-    public void setMax_amount(int max_amount) {
-        this.max_amount = max_amount;
+    public void setMaxAmount(int maxAmount) {
+        this.maxAmount = maxAmount;
     }
 
-    public LocalDateTime getCreate_date() {
-        return create_date;
+    public LocalDateTime getCreateDate() {
+        return createDate;
     }
 
-    public void setCreate_date(LocalDateTime create_date) {
-        this.create_date = create_date;
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 
-    public LocalDateTime getUpdate_date() {
-        return update_date;
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
     }
 
-    public void setUpdate_date(LocalDateTime update_date) {
-        this.update_date = update_date;
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
     }
 
 }

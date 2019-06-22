@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.domain;
+package com.pfscServer.domain;
 
 import java.io.Serializable;
 import lombok.EqualsAndHashCode;
@@ -12,15 +12,14 @@ import lombok.ToString;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "configs")
+@Table(name = "marks")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class Config implements Serializable {
+public class Mark implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private String value;
     
     public Long getId() {
         return id;
@@ -36,14 +35,6 @@ public class Config implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
     
 }

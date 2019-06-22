@@ -1,7 +1,7 @@
-package com.pfsc_server.controller;
+package com.pfscServer.controller;
 
-import com.pfsc_server.domain.TypeOfFile;
-import com.pfsc_server.repo.TypeOfFileRepo;
+import com.pfscServer.domain.TypeOfFile;
+import com.pfscServer.repo.TypeOfFileRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

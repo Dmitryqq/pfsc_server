@@ -1,4 +1,4 @@
-package com.pfsc_server;
+package com.pfscServer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package com.pfsc_server;
+package com.pfscServer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
-public class Pfsc_serverApllication {
+public class PfscServerApllication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Pfsc_serverApllication.class, args);
+		SpringApplication.run(PfscServerApllication.class, args);
 	}
 
 	@Bean

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.service;
+package com.pfscServer.service;
 
+import java.io.IOException;
 import java.util.List;
 /**
  *
@@ -20,6 +21,6 @@ public interface EntityService<T,S> {
     
     T save(T t);
 
-    void delete(S id);
+    void delete(S id) throws IOException;
     
 }

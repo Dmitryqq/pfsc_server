@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.repo;
+package com.pfscServer.repo;
 
-import com.pfsc_server.domain.Role;
+import com.pfscServer.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RolesRepo extends JpaRepository<Role, Long> {
+public interface UsersRepo extends JpaRepository<User, Long> {
 }

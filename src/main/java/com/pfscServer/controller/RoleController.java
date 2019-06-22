@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.controller;
+package com.pfscServer.controller;
 
-import com.pfsc_server.domain.Role;
-import com.pfsc_server.repo.RolesRepo;
+import com.pfscServer.domain.Role;
+import com.pfscServer.repo.RolesRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

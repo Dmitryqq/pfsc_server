@@ -1,6 +1,6 @@
-package com.pfsc_server.repo;
+package com.pfscServer.repo;
 
-import com.pfsc_server.domain.TypeOfFile;
+import com.pfscServer.domain.TypeOfFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TypeOfFileRepo extends JpaRepository<TypeOfFile, Long> {

@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.repo;
+package com.pfscServer.repo;
 
-import com.pfsc_server.domain.Config;
+import com.pfscServer.domain.Mark;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ConfigsRepo extends JpaRepository<Config, Long> {
+public interface MarksRepo extends JpaRepository<Mark, Long> {
 }
