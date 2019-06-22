@@ -1,6 +1,6 @@
-package com.pfsc_server.security;
+package com.pfscServer.security;
 
-import com.pfsc_server.domain.ApplicationUser;
+import com.pfscServer.domain.ApplicationUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,10 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import static com.pfsc_server.security.SecurityConstants.EXPIRATION_TIME;
-import static com.pfsc_server.security.SecurityConstants.HEADER_STRING;
-import static com.pfsc_server.security.SecurityConstants.SECRET;
-import static com.pfsc_server.security.SecurityConstants.TOKEN_PREFIX;
+import static com.pfscServer.security.SecurityConstants.*;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private AuthenticationManager authenticationManager;

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.repo;
+package com.pfscServer.repo;
 
-import com.pfsc_server.domain.ApplicationUser;
+import com.pfscServer.domain.ApplicationUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApplicationUserRepository extends JpaRepository<ApplicationUser, Long> {

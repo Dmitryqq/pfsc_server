@@ -1,4 +1,4 @@
-package com.pfsc_server.security;
+package com.pfscServer.security;
 
 public class SecurityConstants {
     public static final String SECRET = "SecretKeyToGenJWTs";

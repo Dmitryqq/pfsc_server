@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.pfsc_server.domain;
+package com.pfscServer.domain;
 
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import javax.persistence.*;
@@ -15,9 +16,9 @@ import javax.persistence.*;
 @Table(name = "users")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class ApplicationUser{
+public class ApplicationUser implements Serializable{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(updatable = false, nullable = false)
     private Long id;
 

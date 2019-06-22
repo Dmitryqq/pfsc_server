@@ -42,7 +42,7 @@ public class Commit implements Serializable {
     
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private ApplicationUser user;
     
     @Column(updatable = false, insertable = false, nullable = false, name="mark_id")
     private Long markId;  
@@ -111,11 +111,11 @@ public class Commit implements Serializable {
         return userId;
     }
 
-    public User getUser() {
+    public ApplicationUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(ApplicationUser user) {
         this.user = user;
     }
     

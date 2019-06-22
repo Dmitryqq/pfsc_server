@@ -20,7 +20,7 @@ public class CommitDto implements Serializable{
     private Long id;
     private String description;   
     private Long userId;  
-    private User user;
+    private ApplicationUser user;
     private Long markId;  
     private Mark mark;
     private int number;
@@ -77,11 +77,11 @@ public class CommitDto implements Serializable{
         this.userId = userId;
     }
 
-    public User getUser() {
+    public ApplicationUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(ApplicationUser user) {
         this.user = user;
     }
 

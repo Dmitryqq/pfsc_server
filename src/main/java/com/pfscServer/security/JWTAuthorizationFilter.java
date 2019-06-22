@@ -1,4 +1,4 @@
-package com.pfsc_server.security;
+package com.pfscServer.security;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import static com.pfsc_server.security.SecurityConstants.HEADER_STRING;
-import static com.pfsc_server.security.SecurityConstants.SECRET;
-import static com.pfsc_server.security.SecurityConstants.TOKEN_PREFIX;
+import static com.pfscServer.security.SecurityConstants.HEADER_STRING;
+import static com.pfscServer.security.SecurityConstants.SECRET;
+import static com.pfscServer.security.SecurityConstants.TOKEN_PREFIX;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     public JWTAuthorizationFilter(AuthenticationManager authManager) {

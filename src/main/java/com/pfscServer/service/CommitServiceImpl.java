@@ -6,12 +6,12 @@
 package com.pfscServer.service;
 
 import com.pfscServer.domain.*;
+import com.pfscServer.repo.ApplicationUserRepository;
 import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
 import com.pfscServer.repo.MarksRepo;
 import com.pfscServer.repo.TypeOfFileRepo;
-import com.pfscServer.repo.UsersRepo;
 import com.pfscServer.util.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,7 +30,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     @Autowired
     ConfigsRepo configRepo;
     @Autowired
-    UsersRepo userRepo;
+    ApplicationUserRepository userRepo;
     @Autowired
     TypeOfFileRepo typeOfFileRepo;
     @Autowired
@@ -64,7 +64,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     @Override
     public Commit create(Commit t) throws IOException{
         Config rootDir = configRepo.findById(1L).orElse(null);
-        User user = userRepo.findById(t.getUserId()).orElse(null);
+        ApplicationUser user = userRepo.findById(t.getUserId()).orElse(null);
         Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if(rootDir == null || user == null || mark == null) 
             return null;
