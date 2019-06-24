@@ -31,13 +31,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+//                .antMatchers("/user").hasRole("DBA")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), applicationUserRepository))
-                .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-                .formLogin()
-                .and()
-                .httpBasic();;
+                .addFilter(new JWTAuthorizationFilter(authenticationManager()));
+//                .formLogin()
+//                .and()
+//                .httpBasic();;
         http.headers().frameOptions().disable();
     }
     @Override
@@ -56,7 +57,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Collections.singletonList("*"));
-        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "Pragma"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);

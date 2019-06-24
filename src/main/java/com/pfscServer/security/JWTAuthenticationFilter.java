@@ -3,6 +3,7 @@ package com.pfscServer.security;
 import com.pfscServer.domain.ApplicationUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pfscServer.repo.ApplicationUserRepository;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
 import static com.pfscServer.security.SecurityConstants.*;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -51,10 +55,14 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication auth) throws IOException, ServletException {
         ApplicationUser user;
         user = applicationUserRepository.findByUsername(((User) auth.getPrincipal()).getUsername());
+        Claims claims = Jwts.claims().setSubject(((User) auth.getPrincipal()).getUsername());
+
+        claims.put("role", user.getRole());
         String token = Jwts.builder()
-                .setSubject(((User) auth.getPrincipal()).getUsername())
-                .claim("id", user.getId())  //Добавление кастомного поля в токен
-                .claim("role", user.getRole())
+                .setClaims(claims)
+//                .setSubject()
+//                .claim("id", user.getId())  //Добавление кастомного поля в токен
+//                .claim("roles", )
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
