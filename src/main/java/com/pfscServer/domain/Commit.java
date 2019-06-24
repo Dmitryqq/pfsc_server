@@ -7,13 +7,11 @@ package com.pfscServer.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pfscServer.util.DateUtil;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -40,6 +38,7 @@ public class Commit implements Serializable {
     @Column(updatable = false, insertable = false, nullable = false, name="user_id")
     private Long userId;  
     
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
     private ApplicationUser user;
@@ -62,8 +61,6 @@ public class Commit implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime updateDate;
     
-    @OneToMany(mappedBy="commit")
-    private List<File>files = new ArrayList<>();
     
     // -------Getters and Setters-------
 
@@ -139,11 +136,4 @@ public class Commit implements Serializable {
         return rootDir + "\\" + DateUtil.getDateString(createDate,".") + "\\" + user.getName() + "\\" + number;
     } 
   
-    public List<File> getFiles() {
-        return files;
-    }
-
-    public void setFiles(List<File> files) {
-        this.files = files;
-    }
 }

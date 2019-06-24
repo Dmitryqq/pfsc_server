@@ -20,7 +20,7 @@ public class CommitDto implements Serializable{
     private Long id;
     private String description;   
     private Long userId;  
-    private ApplicationUser user;
+    private String userName;
     private Long markId;  
     private Mark mark;
     private int number;
@@ -29,28 +29,19 @@ public class CommitDto implements Serializable{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime updateDate;
     private Boolean accepted;
-    private List<File>files = new ArrayList();
-
-    public List<File> getFiles() {
-        return files;
-    }
-
-    public void setFiles(List<File> files) {
-        this.files = files;
-    }
+    private List<FileTypeDto>fileTypes = new ArrayList();
     
     public CommitDto(Commit commit, Boolean accepted) {
         this.id = commit.getId();
         this.description = commit.getDescription();
         this.userId = commit.getUserId();
-        this.user = commit.getUser();
+        this.userName = commit.getUser().getName();
         this.markId = commit.getMarkId();
         this.mark = commit.getMark();
         this.number = commit.getNumber();
         this.createDate = commit.getCreateDate();
         this.updateDate = commit.getUpdateDate();
         this.accepted = accepted;
-        this.files = commit.getFiles();
     }
     
     public Long getId() {
@@ -77,12 +68,12 @@ public class CommitDto implements Serializable{
         this.userId = userId;
     }
 
-    public ApplicationUser getUser() {
-        return user;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUser(ApplicationUser user) {
-        this.user = user;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public Long getMarkId() {
@@ -131,5 +122,13 @@ public class CommitDto implements Serializable{
 
     public void setAccepted(Boolean status) {
         this.accepted = status;
+    }
+    
+    public List<FileTypeDto> getFileTypes() {
+        return fileTypes;
+    }
+
+    public void setFileTypes(List<FileTypeDto> fileTypes) {
+        this.fileTypes = fileTypes;
     }
 }

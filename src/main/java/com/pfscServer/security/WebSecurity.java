@@ -1,6 +1,6 @@
 package com.pfscServer.security;
 
-import com.pfsc_server.repo.ApplicationUserRepository;
+import com.pfscServer.repo.ApplicationUserRepository;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

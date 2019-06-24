@@ -1,7 +1,6 @@
 package com.pfscServer.controller;
 
-import com.pfscServer.domain.TypeOfFile;
-import com.pfscServer.repo.TypeOfFileRepo;
+import com.pfscServer.domain.FileType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,22 +8,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import com.pfscServer.repo.FileTypesRepo;
 
 @RestController
 @RequestMapping("typeOfFile")
-public class TypeOfFileController {
-    private final TypeOfFileRepo typeOfFileRepo;
+public class FileTypeController {
+    private final FileTypesRepo typeOfFileRepo;
 
     @Autowired
-    public TypeOfFileController(TypeOfFileRepo typeOfFileRepo) {
+    public FileTypeController(FileTypesRepo typeOfFileRepo) {
         this.typeOfFileRepo = typeOfFileRepo;
     }
 
 
 
     @GetMapping
-    public  ResponseEntity<List<TypeOfFile>> list() {
-        List<TypeOfFile> typeOfFiles = typeOfFileRepo.findAll();
+    public  ResponseEntity<List<FileType>> list() {
+        List<FileType> typeOfFiles = typeOfFileRepo.findAll();
         if (typeOfFiles.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -33,11 +33,11 @@ public class TypeOfFileController {
 
     //@JsonView(Views.FullTypeOfFile.class)
     @GetMapping("{id}")
-    public ResponseEntity<TypeOfFile> getOne(@PathVariable("id") Long typeOfFileId) {
+    public ResponseEntity<FileType> getOne(@PathVariable("id") Long typeOfFileId) {
         if (typeOfFileId == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        TypeOfFile typeOfFile = typeOfFileRepo.findById(typeOfFileId).orElse(null);
+        FileType typeOfFile = typeOfFileRepo.findById(typeOfFileId).orElse(null);
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -47,7 +47,7 @@ public class TypeOfFileController {
 
 
     @PostMapping
-    public ResponseEntity<TypeOfFile> create(@RequestBody TypeOfFile typeOfFile) {
+    public ResponseEntity<FileType> create(@RequestBody FileType typeOfFile) {
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -56,11 +56,11 @@ public class TypeOfFileController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<TypeOfFile> update(
+    public ResponseEntity<FileType> update(
             @PathVariable("id") Long typeOfFileId,
-            @RequestBody TypeOfFile typeOfFile
+            @RequestBody FileType typeOfFile
     ) {
-        TypeOfFile typeOfFileFromDb = typeOfFileRepo.findById(typeOfFileId).orElse(null);
+        FileType typeOfFileFromDb = typeOfFileRepo.findById(typeOfFileId).orElse(null);
         if (typeOfFileFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -70,8 +70,8 @@ public class TypeOfFileController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<TypeOfFile> delete(@PathVariable("id") Long typeOfFileId) {
-        TypeOfFile typeOfFile = typeOfFileRepo.findById(typeOfFileId).orElse(null);
+    public ResponseEntity<FileType> delete(@PathVariable("id") Long typeOfFileId) {
+        FileType typeOfFile = typeOfFileRepo.findById(typeOfFileId).orElse(null);
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

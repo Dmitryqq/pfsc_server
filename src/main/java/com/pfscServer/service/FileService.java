@@ -8,6 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileService {
-    List<File> create(@RequestParam Long fileId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException;
+    List<File> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException;
     void deleteByCommit(@RequestParam Long id);
 }

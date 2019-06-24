@@ -2,7 +2,7 @@ package com.pfscServer.security;
 
 import com.pfscServer.domain.ApplicationUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pfsc_server.repo.ApplicationUserRepository;
+import com.pfscServer.repo.ApplicationUserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,6 +54,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .claim("id", user.getId())  //Добавление кастомного поля в токен
+                .claim("roleId", user.getRole_id())  //Добавление кастомного поля в токен
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();

@@ -32,20 +32,20 @@ public class File implements Serializable {
     @JoinColumn(name = "commit_id")
     private Commit commit;
 
+    @Column(updatable = false, insertable = false, nullable = false, name = "fileType_id")
+    private Long fileTypeId;
 
-    @Column(updatable = false, insertable = false, nullable = false, name = "file_id")
-    private Long fileId;
-
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "file_id")
-    private TypeOfFile file;
+    @JoinColumn(name = "fileType_id")
+    private FileType fileType;
 
     @Column(updatable = false, nullable = false)
     private String path;
 
     //Getter and Setters
-    public Long getFileId() {
-        return fileId;
+    public Long getFileTypeId() {
+        return fileTypeId;
     }
 
     public Commit getCommit() {
@@ -73,8 +73,8 @@ public class File implements Serializable {
     }
 
 
-    public void setFileId(Long fileId) {
-        this.fileId = fileId;
+    public void setFileTypeId(Long fileTypeId) {
+        this.fileTypeId = fileTypeId;
     }
 
     public String getPath() {
@@ -85,12 +85,12 @@ public class File implements Serializable {
         this.path = path;
     }
 
-    public TypeOfFile getFile() {
-        return file;
+    public FileType getFileType() {
+        return fileType;
     }
 
-    public void setFile(TypeOfFile fileId) {
-        this.file = fileId;
+    public void setFileType(FileType fileId) {
+        this.fileType = fileId;
     }
 
 }

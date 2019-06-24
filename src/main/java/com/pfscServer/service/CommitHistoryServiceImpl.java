@@ -49,7 +49,7 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
     @Override
     public CommitHistory rejectCommit(Long id) throws IOException{
         Commit commit = commitRepo.findById(id).orElse(null);
-        Config rootDir = configRepo.findById(1L).orElse(null);
+        Config rootDir = configRepo.findFirstByName("rootDir");
         if(commit == null || rootDir == null)
             return null;       
         CommitHistory history = new CommitHistory();

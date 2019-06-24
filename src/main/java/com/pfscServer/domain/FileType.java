@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "typeOfFiles")
+@Table(name = "file_types")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
-public class TypeOfFile implements Serializable {
+public class FileType implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,11 +21,15 @@ public class TypeOfFile implements Serializable {
     private String  name;
     private Long maxSize;
     private boolean required;
-    private String type;
+    private String types;
     private int maxAmount;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
-
+    @Column(updatable = false, insertable = false, nullable = false, name="role_id")
+    private Long roleId;
+    @ManyToOne()
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     public Long getId() {
         return id;
@@ -59,12 +63,12 @@ public class TypeOfFile implements Serializable {
         this.required = required;
     }
 
-    public String getType() {
-        return type;
+    public String getTypes() {
+        return types;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypes(String types) {
+        this.types = types;
     }
 
     public int getMaxAmount() {
@@ -89,6 +93,22 @@ public class TypeOfFile implements Serializable {
 
     public void setUpdateDate(LocalDateTime updateDate) {
         this.updateDate = updateDate;
+    }
+    
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
 }
