@@ -65,7 +65,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
             return null;
         commit.setFileTypes(fileTypeRepo.findAllDto());
         commit.getFileTypes().forEach((ft) -> {
-            ft.setFiles(fileRepo.findByFileTypeId(ft.getId()));
+            ft.setFiles(fileRepo.findByFileTypeIdAndCommitId(ft.getId(),id));
         });
         return commit;   
     }

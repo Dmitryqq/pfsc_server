@@ -17,5 +17,5 @@ public interface FilesRepo extends JpaRepository<File, Long> {
 
     List<File> findByCommitId(Long commitId);
     
-    List<File> findByFileTypeId(Long fileTypeId);
+    List<File> findByFileTypeIdAndCommitId(Long fileTypeId, Long commitId);
 }
