@@ -32,12 +32,12 @@ public class File implements Serializable {
     @JoinColumn(name = "commit_id")
     private Commit commit;
 
-    @Column(updatable = false, insertable = false, nullable = false, name = "fileType_id")
+    @Column(updatable = false, insertable = false, nullable = false, name = "file_type_id")
     private Long fileTypeId;
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "fileType_id")
+    @JoinColumn(name = "file_type_id")
     private FileType fileType;
 
     @Column(updatable = false, nullable = false)

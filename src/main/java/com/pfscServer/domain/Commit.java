@@ -35,7 +35,7 @@ public class Commit implements Serializable {
     @Column(nullable = false)
     private String description;   
     
-    @Column(updatable = false, insertable = false, nullable = false, name="user_id")
+    @Column(updatable = false, insertable = false, name="user_id")
     private Long userId;  
     
     @JsonIgnore
