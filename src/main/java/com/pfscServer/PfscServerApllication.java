@@ -20,7 +20,7 @@ public class PfscServerApllication {
 		return new WebMvcConfigurerAdapter() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("*").allowedHeaders("*").allowedMethods("*");
+				registry.addMapping("/**");
 			}
 		};
 	}

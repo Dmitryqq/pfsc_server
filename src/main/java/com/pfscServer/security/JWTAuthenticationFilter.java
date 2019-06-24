@@ -54,16 +54,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .claim("id", user.getId())  //Добавление кастомного поля в токен
-                .claim("name", user.getName())  //Добавление кастомного поля в токен
-                .claim("role", user.getRole().getRoleName())  //Добавление кастомного поля в токен
+                .claim("roleId", user.getRole_id())  //Добавление кастомного поля в токен
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
-        res.setContentType("application/json");
-        res.setCharacterEncoding("UTF-8");
-        res.getWriter().write("{ \"token\" : \"" + token + "\"}");
-        res.getWriter().flush();
-        res.getWriter().close();
     }
 }
