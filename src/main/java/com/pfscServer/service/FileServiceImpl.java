@@ -6,18 +6,21 @@ import com.pfscServer.domain.File;
 import com.pfscServer.domain.FileType;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
+import com.pfscServer.repo.FileTypesRepo;
 import com.pfscServer.repo.FilesRepo;
+import com.pfscServer.util.FileArray;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
-import java.util.*;
-import com.pfscServer.repo.FileTypesRepo;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FileServiceImpl implements EntityService<File, Long>, FileService {
@@ -27,7 +30,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     @Autowired
     private ConfigsRepo configRepo;
     @Autowired
-    private FileTypesRepo fileTypeRepo;
+    private FileTypesRepo typeOfFileRepo;
     @Autowired
     private CommitsRepo commitsRepo;
 
@@ -55,36 +58,36 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     }
 
     @Override
-    public List<File> create(Long fileTypeId, Long commitId, MultipartFile[] files) throws IOException {
+    public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException {
         List<File> file = new ArrayList<>();
         Commit commit = commitsRepo.findById(commitId).orElse(null);
-        FileType fileType = fileTypeRepo.findById(fileTypeId).orElse(null);
-        Config rootDir = configRepo.findFirstByName("rootDir");
+        FileType typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
+        Config rootDir = configRepo.findById(1L).orElse(null);
 
         File temp = new File();
 
         int fileLength = files.length;
-        int count = fileRepo.countFiles(commitId, fileTypeId) + fileLength;
+        int count = fileRepo.countFiles(commitId, fileId) + fileLength;
 
-        if (count > fileType.getMaxAmount()) {
+        if (count > typeOfFile.getMaxAmount()) {
             //превышен лимит кол-ва файлов
             temp.setPath("Превышен лимит");
             file.add(temp);
             return file;
         } else {
 
-            if (rootDir == null || commit == null || fileType == null) {
+            if (rootDir == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
                 temp.setPath("одно из полей пустое");
                 file.add(temp);
                 return file;
             } else {
-                String path = commit.getDir(rootDir.getValue()) + "\\" + fileType.getName();
+                String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
                 FileUtil.directoryExist(path);
                 //Кол-во файлов по данному commit id
-                List<String> allFile = fileRepo.allFiles(commitId, fileTypeId);
+                List<String> allFile = fileRepo.allFiles(commitId, fileId);
                 //лист байтов
-                List<byte[]> listByte = new ArrayList<>();
+                List<FileArray> fileArrays = new ArrayList<>();
 
                 /*
                 //При помощи java.nio выборка файлов
@@ -106,19 +109,31 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
                 //При помощи java.io выборка байтовых значений файлов
                 if (allFile != null) {
-                    listByte = FileUtil.takeFiles(allFile);
+                    for (String tempPath : allFile) {
+                        FileArray tempFile = new FileArray();
+                        java.io.File tempFilePath = new java.io.File(tempPath);
+                        tempFile.fileName = tempFilePath.getName();
+                        tempFile.path = tempPath;
+                        tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
+                        tempFile.downloaded = false;
+                        fileArrays.add(tempFile);
+                    }
                 }
 
 
                 //выборка байтов загружаемых файлов
                 for (MultipartFile uploadFile : files) {
+                    FileArray tempFile = new FileArray();
                     String pathFile = path + "\\" + uploadFile.getOriginalFilename();
-                    allFile.add(pathFile);
-                    listByte.add(uploadFile.getBytes());
+                    tempFile.fileName = uploadFile.getOriginalFilename();
+                    tempFile.path = pathFile;
+                    System.out.println(tempFile.content + "\n");
+                    tempFile.downloaded = true;
+                    fileArrays.add(tempFile);
                 }
 
                 //проверка на расширение файла
-                String temps = fileType.getTypes();
+                String temps = typeOfFile.getTypes();
                 String[] arrStrings1 = temps.split(",");
                 for (MultipartFile uploadFile : files) {
                     String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
@@ -137,23 +152,24 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
                 //сравнение файлов
                 //допилить, нет сравнения по наименованию
-                if (FileUtil.compareFile(listByte) || FileUtil.compareFileName(allFile)) {
-                    temp.setPath("есть два одинаковых файла");
+                String message = FileUtil.compareFile(fileArrays);
+                if (message != null) {
+                    temp.setPath("Файл " + message + " уже существует ");
                     file.add(temp);
                     return file;
                 }
 
                 for (MultipartFile uploadedFile : files) {
-                    if (uploadedFile.getSize() > fileType.getMaxSize() * 1024) {
+                    if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                         //рамер файла превышает допустимый
                         temp.setPath("размер файла превыщает допустимый");
                         file.add(temp);
                         return file;
                     } else {
                         File tempFile = new File();
+                        tempFile.setFileTypeId(fileId);
                         tempFile.setCommitId(commitId);
-                        tempFile.setFileTypeId(fileTypeId);
-                        tempFile.setFileType(fileType);
+                        tempFile.setFileType(typeOfFile);
                         tempFile.setCommit(commit);
 
                         String pathFile = path + "\\" + uploadedFile.getOriginalFilename();
@@ -180,4 +196,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         List<File> file = fileRepo.findByCommitId(commitId);
         fileRepo.deleteAll(file);
     }
+
+
 }
+
+
