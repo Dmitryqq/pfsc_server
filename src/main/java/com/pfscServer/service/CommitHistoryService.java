@@ -5,6 +5,8 @@
  */
 package com.pfscServer.service;
 
+import com.pfscServer.domain.Activity;
+import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.CommitHistory;
 import java.io.IOException;
 
@@ -16,5 +18,7 @@ public interface CommitHistoryService {
     
     CommitHistory acceptCommit(Long id) throws Exception;
     
-    CommitHistory rejectCommit(Long id) throws IOException;
+    CommitHistory rejectCommit(Long id) throws IOException,Exception;
+    
+    CommitHistory create(Commit commit, Activity activity);
 }

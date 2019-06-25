@@ -13,4 +13,5 @@ public interface CommitHistoryRepo extends JpaRepository<CommitHistory, Long>{
  
     List<CommitHistory> findByCommitId(Long commitId);
     
+    List<CommitHistory> findByCommitIdAndActivity(Long commitId, String activity);
 }

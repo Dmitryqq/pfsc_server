@@ -47,5 +47,8 @@ public class CommitHistoryController {
         catch(IOException ex){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        catch(Exception ex){
+            return new ResponseEntity<>(HttpStatus.LOCKED);
+        }
     }
 }

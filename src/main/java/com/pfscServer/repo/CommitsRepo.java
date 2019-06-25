@@ -14,18 +14,18 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CommitsRepo extends JpaRepository<Commit, Long>{ 
     
-    static final String joinQuery = "select new com.pfscServer.domain.CommitDto(a,b.accepted) from Commit a left join CommitHistory b on b.commitId = a.id and b.createDate = (select max(ch.createDate) from CommitHistory ch where ch.commitId = a.id)";
+    static final String joinQuery = "select new com.pfscServer.domain.CommitDto(a,b.activity) from Commit a left join CommitHistory b on b.commitId = a.id and (b.activity='принят' or b.activity='отклонен')";
     
     @Query("select count(a) from Commit a where (a.createDate between ?2 and ?3) and (a.userId = ?1)")
     int CountUserCommits(Long user_id, LocalDateTime startDate, LocalDateTime endDate);
     
-    @Query(joinQuery + " where a.description like %?1% order by b.accepted desc,a.createDate desc")
+    @Query(joinQuery + " where a.description like %?1% order by b.activity desc,a.createDate desc")
     List<CommitDto> findByDescriptionContaining(String description);
     
-    @Query(joinQuery + " where a.description like %?1% or a.createDate between ?2 and ?3 order by b.accepted desc,a.createDate desc")
+    @Query(joinQuery + " where a.description like %?1% or a.createDate between ?2 and ?3 order by b.activity desc,a.createDate desc")
     List<CommitDto> findByDescriptionOrCreateDate(String param, LocalDateTime startDate, LocalDateTime endDate);
     
-    @Query(joinQuery + " order by b.accepted desc, a.createDate desc")
+    @Query(joinQuery + " order by b.activity desc, a.createDate desc")
     List<CommitDto> findWithHistory();
     
     @Query(joinQuery +" where a.id=?1")

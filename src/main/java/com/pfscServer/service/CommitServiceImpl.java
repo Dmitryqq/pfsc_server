@@ -108,15 +108,13 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
         Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if( commit == null || mark == null)
             throw new Exception("Bad request");
-        if(historyRepo.findByCommitId(id).isEmpty()){
-            commit.setDescription(t.getDescription());
-            commit.setMark(mark);
-            commit.setMarkId(mark.getId());
-            commit.setUpdateDate(LocalDateTime.now());
-            return commitRepo.save(commit);   
-        }
-        else
+        if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
             return null;
+        commit.setDescription(t.getDescription());
+        commit.setMark(mark);
+        commit.setMarkId(mark.getId());
+        commit.setUpdateDate(LocalDateTime.now());
+        return commitRepo.save(commit);   
     }
 
     @Override

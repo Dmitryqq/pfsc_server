@@ -16,6 +16,7 @@ public class FileTypeDto implements Serializable {
         this.types = fileType.getTypes();
         this.maxAmount = fileType.getMaxAmount();
         this.roleId = fileType.getRoleId();
+        this.enableAfterAccept = fileType.isEnableAfterAccept();
     }
 
     private Long id;
@@ -25,6 +26,7 @@ public class FileTypeDto implements Serializable {
     private String types;
     private int maxAmount;
     private Long roleId;
+    private boolean enableAfterAccept;
     private List<File>files = new ArrayList();
 
     public List<File> getFiles() {
@@ -90,5 +92,12 @@ public class FileTypeDto implements Serializable {
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
+    
+    public boolean isEnableAfterAccept() {
+        return enableAfterAccept;
+    }
 
+    public void setEnableAfterAccept(boolean enableAfterAccept) {
+        this.enableAfterAccept = enableAfterAccept;
+    }
 }

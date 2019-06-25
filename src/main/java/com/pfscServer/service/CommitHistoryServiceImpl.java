@@ -5,8 +5,10 @@
  */
 package com.pfscServer.service;
 
+import com.pfscServer.domain.Activity;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.CommitHistory;
+import com.pfscServer.domain.ApplicationUser;
 import com.pfscServer.domain.Config;
 import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
@@ -29,36 +31,43 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
     @Autowired
     CommitHistoryRepo historyRepo;
     @Autowired
-    ConfigsRepo configRepo;
-    
+    ConfigsRepo configRepo; 
+    @Autowired
+    UserDetailsServiceImpl userService;
+        
     @Override
     public CommitHistory acceptCommit(Long id) throws Exception{
         Commit commit = commitRepo.findById(id).orElse(null);
         if(commit == null)
             return null;       
-        if(historyRepo.findByCommitId(id).size()>0)
+        if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
             throw new Exception("Locked");
-        CommitHistory history = new CommitHistory();
-        history.setCommitId(id);
-        history.setCommit(commit);
-        history.setAccepted(true);
-        history.setCreateDate(LocalDateTime.now());
-        return historyRepo.save(history);       
+        return create(commit, Activity.ACCEPT);   
     }
 
     @Override
-    public CommitHistory rejectCommit(Long id) throws IOException{
+    public CommitHistory rejectCommit(Long id) throws IOException, Exception{
         Commit commit = commitRepo.findById(id).orElse(null);
         Config rootDir = configRepo.findFirstByName("rootDir");
         if(commit == null || rootDir == null)
-            return null;       
-        CommitHistory history = new CommitHistory();
-        history.setCommitId(id);
-        history.setCommit(commit);
-        history.setAccepted(false);
-        history.setCreateDate(LocalDateTime.now());
-        FileUtil.deleteDir(history.getCommit().getDir(rootDir.getValue()));
-        return historyRepo.save(history);
+            return null;
+        if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
+            throw new Exception("Locked");
+        FileUtil.deleteDir(commit.getDir(rootDir.getValue()));
+        return create(commit,Activity.REJECT);
     }
        
+    @Override
+    public CommitHistory create(Commit commit, Activity activity){
+        CommitHistory history = new CommitHistory();
+        history.setCommitId(commit.getId());
+        history.setCommit(commit);
+        history.setActivity(activity.getTitle());
+        ApplicationUser user = userService.getCurrentUser();
+        if(user == null)
+            return null;
+        history.setUserId(user.getId());
+        history.setCreateDate(LocalDateTime.now());
+        return historyRepo.save(history);       
+    }
 }
