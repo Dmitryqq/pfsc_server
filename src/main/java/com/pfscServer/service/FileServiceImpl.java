@@ -1,9 +1,11 @@
 package com.pfscServer.service;
 
+import ch.qos.logback.classic.Logger;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.File;
 import com.pfscServer.domain.FileType;
+import com.pfscServer.exception.FileException;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
 import com.pfscServer.repo.FileTypesRepo;
@@ -11,8 +13,11 @@ import com.pfscServer.repo.FilesRepo;
 import com.pfscServer.util.FileArray;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -46,7 +51,9 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
     @Override
     public File save(File file) {
+
         return null;
+
     }
 
     @Override
@@ -55,10 +62,11 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         Path path = Paths.get(file.getPath());
         Files.delete(path);
         fileRepo.delete(file);
+
     }
 
     @Override
-    public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException {
+    public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException , FileException{
         List<File> file = new ArrayList<>();
         Commit commit = commitsRepo.findById(commitId).orElse(null);
         FileType typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
@@ -71,16 +79,12 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
         if (count > typeOfFile.getMaxAmount()) {
             //превышен лимит кол-ва файлов
-            temp.setPath("Превышен лимит");
-            file.add(temp);
-            return file;
+            throw new FileException("Превышен лимит количества файлов");
         } else {
 
-            if (rootDir == null || commit == null || typeOfFile == null) {
+            if (file == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
-                temp.setPath("одно из полей пустое");
-                file.add(temp);
-                return file;
+                throw new FileException("одно из полей пустое");
             } else {
                 String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
                 FileUtil.directoryExist(path);
@@ -144,9 +148,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                         }
                     }
                     if (counts == 0) {
-                        temp.setPath("У файла неудовлетворительное расширение");
-                        file.add(temp);
-                        return file;
+                        throw new FileException("У файла неудовлетворительное расширение");
                     }
                 }
 
@@ -154,17 +156,13 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 //допилить, нет сравнения по наименованию
                 String message = FileUtil.compareFile(fileArrays);
                 if (message != null) {
-                    temp.setPath("Файл " + message + " уже существует ");
-                    file.add(temp);
-                    return file;
+                    throw new FileException("Файл " + message + " уже существует ");
                 }
 
                 for (MultipartFile uploadedFile : files) {
                     if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                         //рамер файла превышает допустимый
-                        temp.setPath("размер файла превыщает допустимый");
-                        file.add(temp);
-                        return file;
+                        throw new FileException("размер файла превыщает допустимый");
                     } else {
                         File tempFile = new File();
                         tempFile.setFileTypeId(fileId);
@@ -195,6 +193,28 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     public void deleteByCommit(Long commitId) {
         List<File> file = fileRepo.findByCommitId(commitId);
         fileRepo.deleteAll(file);
+    }
+
+    @Override
+    public String comparison(Long id) throws IOException {
+
+        List<String> file = fileRepo.comparisonAllFiles(id);
+        List<FileArray> fileArrays = new ArrayList<FileArray>();
+        if (file != null) {
+            for (String tempPath : file) {
+                FileArray tempFile = new FileArray();
+                java.io.File tempFilePath = new java.io.File(tempPath);
+                tempFile.fileName = tempFilePath.getName();
+                tempFile.path = tempFilePath.getName();
+                System.out.println("\n" + tempFile.path);
+                tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
+                tempFile.downloaded = true;
+                fileArrays.add(tempFile);
+            }
+        }
+
+        String message = FileUtil.compareFile(fileArrays);
+        return message;
     }
 
 

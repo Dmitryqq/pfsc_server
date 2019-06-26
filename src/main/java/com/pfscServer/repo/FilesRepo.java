@@ -15,6 +15,9 @@ public interface FilesRepo extends JpaRepository<File, Long> {
     @Query("select u.path from File u WHERE u.commitId = ?1 and u.fileTypeId = ?2")
     List<String> allFiles(Long commitId, Long fileId);
 
+    @Query("select u.path from File u WHERE u.commitId = ?1")
+    List<String> comparisonAllFiles(Long commitId);
+
     List<File> findByCommitId(Long commitId);
     
     List<File> findByFileTypeIdAndCommitId(Long fileTypeId, Long commitId);

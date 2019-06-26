@@ -6,6 +6,8 @@
 package com.pfscServer.service;
 
 import com.pfscServer.domain.CommitHistory;
+
+import javax.mail.MessagingException;
 import java.io.IOException;
 
 /**
@@ -16,5 +18,5 @@ public interface CommitHistoryService {
     
     CommitHistory acceptCommit(Long id) throws Exception;
     
-    CommitHistory rejectCommit(Long id) throws IOException;
+    CommitHistory rejectCommit(Long id, String text) throws IOException, MessagingException;
 }
