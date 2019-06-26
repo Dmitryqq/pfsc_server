@@ -93,13 +93,14 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             if (file == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
                 throw new FileException("одно из полей пустое");
-            } else
+            }
+            else
                 //Проверка возможности добавления файлов, если коммит отклонен или принят
             if(!historyRepo.findByCommitIdAndActivity(commitId,Activity.REJECT.getTitle()).isEmpty() || !typeOfFile.isEnableAfterAccept() && !historyRepo.findByCommitIdAndActivity(commitId,Activity.ACCEPT.getTitle()).isEmpty()){
                 throw new FileException("Добавление файлов для данного наката заблокировано");
             }
 
-            } else {
+             else {
                 String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
                 FileUtil.directoryExist(path);
                 //Кол-во файлов по данному commit id

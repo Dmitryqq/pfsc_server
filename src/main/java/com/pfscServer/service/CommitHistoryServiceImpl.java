@@ -35,6 +35,15 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
     @Autowired
     CommitHistoryRepo historyRepo;
     @Autowired
+    ConfigsRepo configRepo;
+    @Autowired
+    UserDetailsServiceImpl userService;
+    @Autowired
+    MailSenderServiceImpl mailSenderServiceImpl;
+    @Autowired
+    ApplicationUserRepository userRepo;
+
+
     @Override
     public CommitHistory acceptCommit(Long id) throws Exception{
         Commit commit = commitRepo.findById(id).orElse(null);
@@ -43,23 +52,12 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
             return null;       
         if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
             throw new Exception("Locked");
-        CommitHistory history = new CommitHistory();
-        history.setCommitId(id);
-        history.setCommit(commit);
-        history.setAccepted(true);
-        history.setCreateDate(LocalDateTime.now());
         mailSenderServiceImpl.send(user,true,commit,"");
-        return historyRepo.save(history);
+        return create(commit, Activity.ACCEPT);
     }
 
     @Override
-    public CommitHistory rejectCommit(Long id, String text) throws IOException, MessagingException {
-
-        return create(commit, Activity.ACCEPT);   
-    }
-
-    @Override
-    public CommitHistory rejectCommit(Long id) throws IOException, Exception{
+    public CommitHistory rejectCommit(Long id, String text)throws IOException, Exception, MessagingException{
 
         Commit commit = commitRepo.findById(id).orElse(null);
         Config rootDir = configRepo.findFirstByName("rootDir");
@@ -69,8 +67,10 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
         if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
             throw new Exception("Locked");
         FileUtil.deleteDir(commit.getDir(rootDir.getValue()));
+        mailSenderServiceImpl.send(user,false,commit,text);
         return create(commit,Activity.REJECT);
     }
+
        
     @Override
     public CommitHistory create(Commit commit, Activity activity){
@@ -83,9 +83,6 @@ public class CommitHistoryServiceImpl implements CommitHistoryService{
             return null;
         history.setUserId(user.getId());
         history.setCreateDate(LocalDateTime.now());
-
-         FileUtil.deleteDir(history.getCommit().getDir(rootDir.getValue()));
-        mailSenderServiceImpl.send(user,false,commit,text);
         return historyRepo.save(history);      
     }
 }
