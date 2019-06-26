@@ -5,8 +5,8 @@
  */
 package com.pfscServer.controller;
 
-import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.CommitHistory;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.service.CommitHistoryServiceImpl;
 
 import java.io.IOException;
@@ -32,32 +32,28 @@ public class CommitHistoryController {
     MailSenderServiceImpl mailSenderServiceImpl;
 
     @GetMapping("{id}/accept")
-    public ResponseEntity<CommitHistory> acceptCommit(@PathVariable("id") Long commitId) {
+    public ResponseEntity<CommitHistory> acceptCommit(@PathVariable("id") Long commitId) throws ServiceException, IOException {
         try {
             CommitHistory history = historyService.acceptCommit(commitId);
             if (history == null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(history, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(HttpStatus.LOCKED);
-        }
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }      
     }
 
     @GetMapping("{id}/reject")
-    public ResponseEntity<CommitHistory> rejectCommit(@PathVariable("id") Long commitId, @RequestBody String text) {
+    public ResponseEntity<CommitHistory> rejectCommit(@PathVariable("id") Long commitId, @RequestBody String text) throws ServiceException, IOException {
         try {
             CommitHistory history = historyService.rejectCommit(commitId, text);
             if (history == null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(history, HttpStatus.OK);
-        } catch (IOException ex) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (MessagingException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        catch(Exception ex){
-            return new ResponseEntity<>(HttpStatus.LOCKED);
         }
     }
 }

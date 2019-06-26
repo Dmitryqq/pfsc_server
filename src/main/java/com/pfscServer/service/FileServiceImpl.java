@@ -2,6 +2,7 @@ package com.pfscServer.service;
 
 
 import com.pfscServer.domain.Activity;
+import com.pfscServer.domain.ApplicationUser;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.File;
@@ -42,6 +43,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     private CommitHistoryServiceImpl commitHistoryService;
     @Autowired
     CommitHistoryRepo historyRepo;
+    @Autowired
+    UserDetailsServiceImpl userService;
     
     @Override
     public List<File> getAll() {
@@ -61,8 +64,15 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     }
 
     @Override
-    public void delete(Long id) throws IOException {
+    public void deleteById(Long id) throws IOException, ServiceException {
         File file = fileRepo.findById(id).orElse(null);
+        ApplicationUser user = userService.getCurrentUser();
+        if(!(
+                (file.getFileType().getRole().getRoleName().equals("User") && user.getId() == file.getCommit().getUserId()) ||
+                !file.getFileType().getRole().getRoleName().equals("User") &&
+                (user.getRole().getRoleName().equals("Admin") || user.getRole().getId() == file.getFileType().getRoleId())                
+            ))    
+            throw new ServiceException("Удаление файла типа \"" + file.getFileType().getName() + "\" данным пользователем запрещено", HttpStatus.FORBIDDEN);
         Path path = Paths.get(file.getPath());
         Files.delete(path);
         fileRepo.delete(file);
@@ -91,10 +101,18 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 //одно из полей пустое
                 throw new ServiceException("одно из полей пустое", HttpStatus.BAD_REQUEST);
             }
-            else
+            else {
+            ApplicationUser user = userService.getCurrentUser();
+            if(!(
+                    (typeOfFile.getRole().getRoleName().equals("User") && user.getId() == commit.getUserId()) ||
+                    !typeOfFile.getRole().getRoleName().equals("User") &&
+                    (user.getRole().getRoleName().equals("Admin") || user.getRole().getId() == typeOfFile.getRoleId())                 
+                ))
+                throw new ServiceException("Добавление файла типа \"" + typeOfFile.getName() + "\" данным пользователем запрещено", HttpStatus.FORBIDDEN);
+            
                 //Проверка возможности добавления файлов, если коммит отклонен или принят
             if(!historyRepo.findByCommitIdAndActivity(commitId,Activity.REJECT.getTitle()).isEmpty() || !typeOfFile.isEnableAfterAccept() && !historyRepo.findByCommitIdAndActivity(commitId,Activity.ACCEPT.getTitle()).isEmpty()){
-                throw new ServiceException("Добавление файлов для данного наката заблокировано", HttpStatus.BAD_REQUEST);
+                throw new ServiceException("Добавление файлов для данного наката заблокировано", HttpStatus.LOCKED);
             }
 
              else {
@@ -201,6 +219,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 fileRepo.saveAll(file);
                 return file;
             }
+            }
         }
     }
 
@@ -221,7 +240,6 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 java.io.File tempFilePath = new java.io.File(tempPath);
                 tempFile.fileName = tempFilePath.getName();
                 tempFile.path = tempFilePath.getName();
-                System.out.println("\n" + tempFile.path);
                 tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
                 tempFile.downloaded = true;
                 fileArrays.add(tempFile);
@@ -232,6 +250,10 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         return message;
     }
 
+    @Override
+    public void delete(Long id) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }
 

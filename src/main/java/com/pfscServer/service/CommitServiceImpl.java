@@ -6,7 +6,7 @@
 package com.pfscServer.service;
 
 import com.pfscServer.domain.*;
-import com.pfscServer.repo.ApplicationUserRepository;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.pfscServer.repo.FileTypesRepo;
 import com.pfscServer.repo.FilesRepo;
+import org.springframework.http.HttpStatus;
 /**
  *
  * @author User
@@ -119,12 +120,12 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     }
     
     @Override
-    public CommitDto update(Long id,Commit t) throws Exception{  
+    public CommitDto update(Long id,Commit t) throws ServiceException{  
         Mark mark = markRepo.findById(t.getMarkId()).orElse(null);    
         if(mark == null)
-            throw new Exception("Bad request");
+            throw new ServiceException("Отсутствует метка с id "+t.getMarkId(), HttpStatus.BAD_REQUEST);
         if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
-            return null;
+            throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);
         Commit commit = commitRepo.getOne(id);
         commit.setDescription(t.getDescription());
         commit.setMark(mark);

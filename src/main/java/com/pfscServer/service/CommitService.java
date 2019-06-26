@@ -7,6 +7,7 @@ package com.pfscServer.service;
 
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.CommitDto;
+import com.pfscServer.exception.ServiceException;
 import java.io.IOException;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface CommitService {
     
     List<CommitDto> find(String description);
     
-    CommitDto update(Long id,Commit t) throws Exception;
+    CommitDto update(Long id,Commit t) throws ServiceException;
     
     List<CommitDto> getDtoAll();
     

@@ -65,8 +65,8 @@ public class FileController {
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<File> delete(@PathVariable("id") Long fileId) throws IOException {
-        fileService.delete(fileId);
+    public ResponseEntity<File> delete(@PathVariable("id") Long fileId) throws IOException, ServiceException {
+        fileService.deleteById(fileId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

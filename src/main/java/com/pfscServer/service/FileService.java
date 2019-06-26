@@ -12,4 +12,5 @@ public interface FileService {
     List<File> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException, ServiceException;
     void deleteByCommit(@RequestParam Long id);
     String comparison(@RequestParam Long id) throws IOException;
+    void deleteById(Long id) throws IOException, ServiceException;
 }

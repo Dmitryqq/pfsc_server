@@ -28,7 +28,7 @@ public interface CommitsRepo extends JpaRepository<Commit, Long>{
     @Query(joinQuery + " where a.userId = ?2 and a.description like %?1% order by b.activity desc,a.createDate desc")
     List<CommitDto> findByUserIdAndDescriptionContaining(String description, Long userId);
     
-    @Query(joinQuery + " where a.userId = ?4 and a.description like %?1% or a.createDate between ?2 and ?3 order by b.activity desc,a.createDate desc")
+    @Query(joinQuery + " where a.userId = ?4 and (a.description like %?1% or a.createDate between ?2 and ?3) order by b.activity desc,a.createDate desc")
     List<CommitDto> findByUserIdAndDescriptionOrCreateDate(String param, LocalDateTime startDate, LocalDateTime endDate, Long userId);
     
     @Query(joinQuery + " order by b.activity desc, a.createDate desc")

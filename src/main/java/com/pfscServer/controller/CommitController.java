@@ -6,6 +6,7 @@
 package com.pfscServer.controller;
 
 import com.pfscServer.domain.*;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.service.CommitServiceImpl;
 import com.pfscServer.service.UserDetailsServiceImpl;
 import java.io.IOException;
@@ -45,20 +46,15 @@ public class CommitController {
     }
     
     @PostMapping
-    public ResponseEntity<CommitDto> create(@RequestBody Commit commit) {
+    public ResponseEntity<CommitDto> create(@RequestBody Commit commit) throws IOException{
         if (commit == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        try{
-            CommitDto commitDto = commitService.create(commit);
-            if(commitDto == null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            else
-                return new ResponseEntity<>(commitDto,HttpStatus.CREATED);
-        }
-        catch(IOException e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }          
+        CommitDto commitDto = commitService.create(commit);
+        if(commitDto == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        else
+            return new ResponseEntity<>(commitDto,HttpStatus.CREATED);         
     }
     
     @PostMapping("search")
@@ -70,22 +66,14 @@ public class CommitController {
     }
     
     @PutMapping("{id}")
-    public ResponseEntity<CommitDto> update(@PathVariable("id") Long commitId, @RequestBody Commit commit){
+    public ResponseEntity<CommitDto> update(@PathVariable("id") Long commitId, @RequestBody Commit commit) throws ServiceException{
         Commit dbCommit = commitService.getById(commitId);
         if(dbCommit == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         ApplicationUser user = userService.getCurrentUser();
         if(user.getId() != dbCommit.getUserId())
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        try{
-            CommitDto commitDto = commitService.update(commitId,commit);
-            if(commitDto==null)
-                return new ResponseEntity<>(HttpStatus.LOCKED);
-            return new ResponseEntity<>(commitDto,HttpStatus.OK);
-        }
-        catch(Exception e){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(commitService.update(commitId,commit),HttpStatus.OK);
     }
     
 }
