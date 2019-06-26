@@ -7,6 +7,7 @@ package com.pfscServer.controller;
 
 import com.pfscServer.domain.*;
 import com.pfscServer.service.CommitServiceImpl;
+import com.pfscServer.service.UserDetailsServiceImpl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ public class CommitController {
     
     @Autowired
     CommitServiceImpl commitService;
+    @Autowired
+    UserDetailsServiceImpl userService;
       
     @GetMapping
     public  ResponseEntity<List<CommitDto>> list() {
@@ -35,20 +38,23 @@ public class CommitController {
         CommitDto commit = commitService.getDtoById(commitId);
         if(commit==null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ApplicationUser user = userService.getCurrentUser();
+        if(user.getRole().getRoleName().equals("User") && user.getId() != commit.getUserId())
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         return new ResponseEntity<>(commit,HttpStatus.OK);
     }
     
     @PostMapping
-    public ResponseEntity<Commit> create(@RequestBody Commit commit) {
+    public ResponseEntity<CommitDto> create(@RequestBody Commit commit) {
         if (commit == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try{
-            commit = commitService.create(commit);
-            if(commit == null)
+            CommitDto commitDto = commitService.create(commit);
+            if(commitDto == null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             else
-                return new ResponseEntity<>(commit,HttpStatus.CREATED);
+                return new ResponseEntity<>(commitDto,HttpStatus.CREATED);
         }
         catch(IOException e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -64,15 +70,18 @@ public class CommitController {
     }
     
     @PutMapping("{id}")
-    public ResponseEntity<Commit> update(@PathVariable("id") Long commitId, @RequestBody Commit commit){
+    public ResponseEntity<CommitDto> update(@PathVariable("id") Long commitId, @RequestBody Commit commit){
         Commit dbCommit = commitService.getById(commitId);
         if(dbCommit == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ApplicationUser user = userService.getCurrentUser();
+        if(user.getId() != dbCommit.getUserId())
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         try{
-            dbCommit = commitService.update(commitId, commit);
-            if(dbCommit==null)
+            CommitDto commitDto = commitService.update(commitId,commit);
+            if(commitDto==null)
                 return new ResponseEntity<>(HttpStatus.LOCKED);
-            return new ResponseEntity<>(dbCommit,HttpStatus.OK);
+            return new ResponseEntity<>(commitDto,HttpStatus.OK);
         }
         catch(Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -55,7 +55,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .claim("id", user.getId())  //Добавление кастомного поля в токен
                 .claim("name", user.getName())  //Добавление кастомного поля в токен
-                .claim("role", user.getRole().getRoleName())  //Добавление кастомного поля в токен
+                .claim("role", user.getRole())  //Добавление кастомного поля в токен
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();

@@ -18,11 +18,11 @@ public interface CommitService {
     
     List<CommitDto> find(String description);
     
-    Commit update(Long id,Commit t) throws Exception;
+    CommitDto update(Long id,Commit t) throws Exception;
     
     List<CommitDto> getDtoAll();
     
     CommitDto getDtoById(Long id);
     
-    Commit create(Commit t) throws IOException;
+    CommitDto create(Commit t) throws IOException;
 }

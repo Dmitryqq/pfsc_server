@@ -1,11 +1,14 @@
 package com.pfscServer.service;
 
+
 import ch.qos.logback.classic.Logger;
+import com.pfscServer.domain.Activity;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.File;
 import com.pfscServer.domain.FileType;
 import com.pfscServer.exception.FileException;
+import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
 import com.pfscServer.repo.FileTypesRepo;
@@ -38,7 +41,11 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     private FileTypesRepo typeOfFileRepo;
     @Autowired
     private CommitsRepo commitsRepo;
-
+    @Autowired
+    private CommitHistoryServiceImpl commitHistoryService;
+    @Autowired
+    CommitHistoryRepo historyRepo;
+    
     @Override
     public List<File> getAll() {
         return fileRepo.findAll();
@@ -71,11 +78,12 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         Commit commit = commitsRepo.findById(commitId).orElse(null);
         FileType typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
         Config rootDir = configRepo.findById(1L).orElse(null);
-
+        
         File temp = new File();
 
         int fileLength = files.length;
         int count = fileRepo.countFiles(commitId, fileId) + fileLength;
+
 
         if (count > typeOfFile.getMaxAmount()) {
             //превышен лимит кол-ва файлов
@@ -85,6 +93,12 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             if (file == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
                 throw new FileException("одно из полей пустое");
+            } else
+                //Проверка возможности добавления файлов, если коммит отклонен или принят
+            if(!historyRepo.findByCommitIdAndActivity(commitId,Activity.REJECT.getTitle()).isEmpty() || !typeOfFile.isEnableAfterAccept() && !historyRepo.findByCommitIdAndActivity(commitId,Activity.ACCEPT.getTitle()).isEmpty()){
+                throw new FileException("Добавление файлов для данного наката заблокировано");
+            }
+
             } else {
                 String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
                 FileUtil.directoryExist(path);
@@ -131,7 +145,6 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                     String pathFile = path + "\\" + uploadFile.getOriginalFilename();
                     tempFile.fileName = uploadFile.getOriginalFilename();
                     tempFile.path = pathFile;
-                    System.out.println(tempFile.content + "\n");
                     tempFile.downloaded = true;
                     fileArrays.add(tempFile);
                 }
@@ -163,6 +176,9 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                     if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                         //рамер файла превышает допустимый
                         throw new FileException("размер файла превыщает допустимый");
+
+                      
+
                     } else {
                         File tempFile = new File();
                         tempFile.setFileTypeId(fileId);
@@ -181,6 +197,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                         //uploadedFile.transferTo(new java.io.File(pathFile));
 
                         file.add(tempFile);
+                        commitHistoryService.create(commit, Activity.ADDFILE);
                     }
                 }
                 fileRepo.saveAll(file);

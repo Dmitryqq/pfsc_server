@@ -28,10 +28,10 @@ public class CommitDto implements Serializable{
     private LocalDateTime createDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime updateDate;
-    private Boolean accepted;
+    private String status;
     private List<FileTypeDto>fileTypes = new ArrayList();
     
-    public CommitDto(Commit commit, Boolean accepted) {
+    public CommitDto(Commit commit, String status) {
         this.id = commit.getId();
         this.description = commit.getDescription();
         this.userId = commit.getUserId();
@@ -41,7 +41,7 @@ public class CommitDto implements Serializable{
         this.number = commit.getNumber();
         this.createDate = commit.getCreateDate();
         this.updateDate = commit.getUpdateDate();
-        this.accepted = accepted;
+        this.status = status;
     }
     
     public Long getId() {
@@ -116,12 +116,12 @@ public class CommitDto implements Serializable{
         this.updateDate = updateDate;
     }
 
-    public Boolean isAccepted() {
-        return accepted;
+    public String getStatus() {
+        return status;
     }
 
-    public void setAccepted(Boolean status) {
-        this.accepted = status;
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     public List<FileTypeDto> getFileTypes() {
