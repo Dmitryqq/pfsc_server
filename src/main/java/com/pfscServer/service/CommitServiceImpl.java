@@ -11,13 +11,14 @@ import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
 import com.pfscServer.repo.MarksRepo;
-import com.pfscServer.repo.TypeOfFileRepo;
 import com.pfscServer.util.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.pfscServer.repo.FileTypesRepo;
+import com.pfscServer.repo.FilesRepo;
 /**
  *
  * @author User
@@ -32,11 +33,13 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     @Autowired
     ApplicationUserRepository userRepo;
     @Autowired
-    TypeOfFileRepo typeOfFileRepo;
+    FileTypesRepo fileTypeRepo;
     @Autowired
     MarksRepo markRepo;
     @Autowired
     CommitHistoryRepo historyRepo;
+    @Autowired
+    FilesRepo fileRepo;
     
     @Override
     public List<Commit> getAll() {
@@ -57,13 +60,19 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     
     @Override
     public CommitDto getDtoById(Long id) {
-        CommitDto commit = commitRepo.findByIdWithHistory(id);  
+        CommitDto commit = commitRepo.findByIdWithHistory(id); 
+        if(commit == null)
+            return null;
+        commit.setFileTypes(fileTypeRepo.findAllDto());
+        commit.getFileTypes().forEach((ft) -> {
+            ft.setFiles(fileRepo.findByFileTypeIdAndCommitId(ft.getId(),id));
+        });
         return commit;   
     }
     
     @Override
     public Commit create(Commit t) throws IOException{
-        Config rootDir = configRepo.findById(1L).orElse(null);
+        Config rootDir = configRepo.findFirstByName("rootDir");
         ApplicationUser user = userRepo.findById(t.getUserId()).orElse(null);
         Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if(rootDir == null || user == null || mark == null) 
@@ -76,7 +85,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
         LocalDateTime endDate = DateUtil.convertToDate(dateString + " 23:59","dd-MM-yyyy HH:mm");
         int n = commitRepo.CountUserCommits(t.getUserId(), startDate, endDate);      
         t.setNumber(n+1);
-        for(TypeOfFile tof : typeOfFileRepo.findAll())
+        for(FileType tof : fileTypeRepo.findAll())
             FileUtil.createDir(t.getDir(rootDir.getValue())+"\\"+tof.getName());       
         return commitRepo.save(t);
     }

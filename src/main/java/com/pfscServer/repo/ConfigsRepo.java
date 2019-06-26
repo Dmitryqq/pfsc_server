@@ -9,4 +9,5 @@ import com.pfscServer.domain.Config;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ConfigsRepo extends JpaRepository<Config, Long> {
+    Config findFirstByName(String name);
 }

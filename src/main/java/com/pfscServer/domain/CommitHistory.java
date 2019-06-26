@@ -19,7 +19,7 @@ import javax.persistence.*;
  */
 
 @Entity
-@Table(name = "commitHistory")
+@Table(name = "commit_history")
 @ToString()
 @EqualsAndHashCode(of = {"id"})
 @JsonIdentityInfo(

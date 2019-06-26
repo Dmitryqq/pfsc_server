@@ -45,11 +45,11 @@ public class FileController {
     }*/
 
     @PostMapping
-    public ResponseEntity<List<File>> create(@RequestParam Long fileId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException {
-        if (fileId == null || commitId == null || files == null) {
+    public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException {
+        if (fileTypeId == null || commitId == null || files == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            List<File> file = fileService.create(fileId, commitId, files);
+            List<File> file = fileService.create(fileTypeId, commitId, files);
             return new ResponseEntity<>(file, HttpStatus.ACCEPTED);
         }
     }

@@ -1,7 +1,6 @@
 package com.pfscServer.security;
 
 import com.pfscServer.repo.ApplicationUserRepository;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,10 +35,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), applicationUserRepository))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()));
-//                .formLogin()
-//                .and()
-//                .httpBasic();;
-        http.headers().frameOptions().disable();
+        http.cors();
     }
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {

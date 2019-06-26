@@ -3,21 +3,24 @@ package com.pfscServer.service;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.File;
-import com.pfscServer.domain.TypeOfFile;
+import com.pfscServer.domain.FileType;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
+import com.pfscServer.repo.FileTypesRepo;
 import com.pfscServer.repo.FilesRepo;
-import com.pfscServer.repo.TypeOfFileRepo;
+import com.pfscServer.util.FileArray;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FileServiceImpl implements EntityService<File, Long>, FileService {
@@ -27,7 +30,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     @Autowired
     private ConfigsRepo configRepo;
     @Autowired
-    private TypeOfFileRepo typeOfFileRepo;
+    private FileTypesRepo typeOfFileRepo;
     @Autowired
     private CommitsRepo commitsRepo;
 
@@ -58,7 +61,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException {
         List<File> file = new ArrayList<>();
         Commit commit = commitsRepo.findById(commitId).orElse(null);
-        TypeOfFile typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
+        FileType typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
         Config rootDir = configRepo.findById(1L).orElse(null);
 
         File temp = new File();
@@ -84,7 +87,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 //Кол-во файлов по данному commit id
                 List<String> allFile = fileRepo.allFiles(commitId, fileId);
                 //лист байтов
-                List<byte[]> listByte = new ArrayList<>();
+                List<FileArray> fileArrays = new ArrayList<>();
 
                 /*
                 //При помощи java.nio выборка файлов
@@ -106,19 +109,31 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
                 //При помощи java.io выборка байтовых значений файлов
                 if (allFile != null) {
-                    listByte = FileUtil.takeFiles(allFile);
+                    for (String tempPath : allFile) {
+                        FileArray tempFile = new FileArray();
+                        java.io.File tempFilePath = new java.io.File(tempPath);
+                        tempFile.fileName = tempFilePath.getName();
+                        tempFile.path = tempPath;
+                        tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
+                        tempFile.downloaded = false;
+                        fileArrays.add(tempFile);
+                    }
                 }
 
 
                 //выборка байтов загружаемых файлов
                 for (MultipartFile uploadFile : files) {
+                    FileArray tempFile = new FileArray();
                     String pathFile = path + "\\" + uploadFile.getOriginalFilename();
-                    allFile.add(pathFile);
-                    listByte.add(uploadFile.getBytes());
+                    tempFile.fileName = uploadFile.getOriginalFilename();
+                    tempFile.path = pathFile;
+                    System.out.println(tempFile.content + "\n");
+                    tempFile.downloaded = true;
+                    fileArrays.add(tempFile);
                 }
 
                 //проверка на расширение файла
-                String temps = typeOfFile.getType();
+                String temps = typeOfFile.getTypes();
                 String[] arrStrings1 = temps.split(",");
                 for (MultipartFile uploadFile : files) {
                     String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
@@ -137,23 +152,24 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
                 //сравнение файлов
                 //допилить, нет сравнения по наименованию
-                if (FileUtil.compareFile(listByte) || FileUtil.compareFileName(allFile)) {
-                    temp.setPath("есть два одинаковых файла");
+                String message = FileUtil.compareFile(fileArrays);
+                if (message != null) {
+                    temp.setPath("Файл " + message + " уже существует ");
                     file.add(temp);
                     return file;
                 }
 
                 for (MultipartFile uploadedFile : files) {
-                    if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024) {
+                    if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                         //рамер файла превышает допустимый
                         temp.setPath("размер файла превыщает допустимый");
                         file.add(temp);
                         return file;
                     } else {
                         File tempFile = new File();
+                        tempFile.setFileTypeId(fileId);
                         tempFile.setCommitId(commitId);
-                        tempFile.setFileId(fileId);
-                        tempFile.setFile(typeOfFile);
+                        tempFile.setFileType(typeOfFile);
                         tempFile.setCommit(commit);
 
                         String pathFile = path + "\\" + uploadedFile.getOriginalFilename();
@@ -180,4 +196,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         List<File> file = fileRepo.findByCommitId(commitId);
         fileRepo.deleteAll(file);
     }
+
+
 }
+
+

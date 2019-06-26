@@ -55,26 +55,35 @@ public class FileUtil {
     }
 
     //Сравнение списка байтов файлов
-    public static boolean compareFile(List<byte[]> files) {
-        for (int i = 0; i < files.size() - 1; i++) {
-            for (int j = i + 1; j < files.size(); j++) {
-                if (Arrays.equals(files.get(i), files.get(j))) {
-                    return true;
+    public static String compareFile(List<FileArray> files) {
+
+        for (int i = 0; i < files.size(); i++) {
+            if (files.get(i).downloaded == true) {
+                for (int j = 0; j < files.size(); j++) {
+                    if (Arrays.equals(files.get(i).content, files.get(j).content) && i != j) {
+
+                        return files.get(i).fileName;
+                    }
                 }
             }
         }
-        return false;
+
+        for (int i = 0; i < files.size(); i++) {
+            if (files.get(i).downloaded == true) {
+                for (int j = 0; j < files.size(); j++) {
+                    if (files.get(i).path.equals(files.get(j).path) && i != j) {
+                        return files.get(i).fileName;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     //Сравнение списка наименований файлов
     public static boolean compareFileName(List<String> files) {
-        for (int i = 0; i < files.size() - 1; i++) {
-            for (int j = i + 1; j < files.size(); j++) {
-                if (files.get(i).equals(files.get(j))) {
-                    return true;
-                }
-            }
-        }
+
         return false;
     }
 

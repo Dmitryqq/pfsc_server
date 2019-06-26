@@ -9,12 +9,13 @@ import java.util.List;
 public interface FilesRepo extends JpaRepository<File, Long> {
 
     //Требуется замена в будущем
-    @Query("select count(u) from File u where u.commitId = ?1 and u.fileId = ?2")
+    @Query("select count(u) from File u where u.commitId = ?1 and u.fileTypeId = ?2")
     int countFiles(Long commitId, Long fileId);
 
-    @Query("select u.path from File u WHERE u.commitId = ?1 and u.fileId = ?2")
+    @Query("select u.path from File u WHERE u.commitId = ?1 and u.fileTypeId = ?2")
     List<String> allFiles(Long commitId, Long fileId);
 
     List<File> findByCommitId(Long commitId);
-
+    
+    List<File> findByFileTypeIdAndCommitId(Long fileTypeId, Long commitId);
 }

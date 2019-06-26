@@ -19,13 +19,13 @@ public interface CommitsRepo extends JpaRepository<Commit, Long>{
     @Query("select count(a) from Commit a where (a.createDate between ?2 and ?3) and (a.userId = ?1)")
     int CountUserCommits(Long user_id, LocalDateTime startDate, LocalDateTime endDate);
     
-    @Query(joinQuery + " where a.description like %?1%")
+    @Query(joinQuery + " where a.description like %?1% order by b.accepted desc,a.createDate desc")
     List<CommitDto> findByDescriptionContaining(String description);
     
-    @Query(joinQuery + " where a.description like %?1% or a.createDate between ?2 and ?3")
+    @Query(joinQuery + " where a.description like %?1% or a.createDate between ?2 and ?3 order by b.accepted desc,a.createDate desc")
     List<CommitDto> findByDescriptionOrCreateDate(String param, LocalDateTime startDate, LocalDateTime endDate);
     
-    @Query(joinQuery)
+    @Query(joinQuery + " order by b.accepted desc, a.createDate desc")
     List<CommitDto> findWithHistory();
     
     @Query(joinQuery +" where a.id=?1")
