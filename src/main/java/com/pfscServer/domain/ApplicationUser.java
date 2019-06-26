@@ -18,7 +18,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(of = {"id"})
 public class ApplicationUser implements Serializable{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
     private Long id;
 
@@ -32,8 +32,8 @@ public class ApplicationUser implements Serializable{
     private String name;
     private String email;
 
-    @Column(updatable = false, insertable = false, nullable = false)
-    private Long role_id;
+    @Column(updatable = false, insertable = false, nullable = false, name = "role_id")
+    private Long roleId;
 
     @ManyToOne
 //            (optional = false, cascade = CascadeType.ALL)
@@ -42,12 +42,13 @@ public class ApplicationUser implements Serializable{
 
     private boolean enabled;
 
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, name = "create_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime create_date;
+    private LocalDateTime createDate;
 
+    @Column(name = "update_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime update_date;
+    private LocalDateTime updateDate;
 
     public Long getId() {
         return id;
@@ -85,9 +86,9 @@ public class ApplicationUser implements Serializable{
         this.email = email;
     }
 
-    public Long getRole_id(){return role_id;}
+    public Long getRoleId(){return roleId;}
 
-    public void setRole_id(Long role_id){this.role_id = role_id; }
+    public void setRoleId(Long roleId){this.roleId = roleId; }
 
     public Role getRole(){return role;}
 
@@ -101,11 +102,11 @@ public class ApplicationUser implements Serializable{
         this.enabled = enabled;
     }
 
-    public LocalDateTime getCreate_date(){return create_date;}
+    public LocalDateTime getCreateDate(){return createDate;}
 
-    public void setCreate_date(LocalDateTime create_date) {this.create_date = create_date;}
+    public void setCreateDate(LocalDateTime createDate) {this.createDate = createDate;}
 
-    public LocalDateTime getUpdate_date(){return update_date;}
+    public LocalDateTime getUpdateDate(){return updateDate;}
 
-    public void setUpdate_date(LocalDateTime update_date) {this.update_date = update_date;}
+    public void setUpdateDate(LocalDateTime updateDate) {this.updateDate = updateDate;}
 }

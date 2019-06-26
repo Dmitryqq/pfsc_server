@@ -54,9 +54,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             Authentication auth) throws IOException, ServletException {
         ApplicationUser user;
         user = applicationUserRepository.findByUsername(((User) auth.getPrincipal()).getUsername());
-        Claims claims = Jwts.claims().setSubject(((User) auth.getPrincipal()).getUsername());
-
-        claims.put("role", user.getRole());
         String token = Jwts.builder()
                 .setSubject(((User) auth.getPrincipal()).getUsername())
                 .claim("id", user.getId())  //Добавление кастомного поля в токен
