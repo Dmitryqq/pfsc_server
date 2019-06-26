@@ -1,13 +1,12 @@
 package com.pfscServer.service;
 
 
-import ch.qos.logback.classic.Logger;
 import com.pfscServer.domain.Activity;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.File;
 import com.pfscServer.domain.FileType;
-import com.pfscServer.exception.FileException;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
@@ -19,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -73,7 +70,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
     }
 
     @Override
-    public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException , FileException{
+    public List<File> create(Long fileId, Long commitId, MultipartFile[] files) throws IOException , ServiceException {
         List<File> file = new ArrayList<>();
         Commit commit = commitsRepo.findById(commitId).orElse(null);
         FileType typeOfFile = typeOfFileRepo.findById(fileId).orElse(null);
@@ -87,17 +84,17 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
         if (count > typeOfFile.getMaxAmount()) {
             //превышен лимит кол-ва файлов
-            throw new FileException("Превышен лимит количества файлов");
+            throw new ServiceException("Превышен лимит количества файлов", HttpStatus.BAD_REQUEST);
         } else {
 
             if (file == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
-                throw new FileException("одно из полей пустое");
+                throw new ServiceException("одно из полей пустое", HttpStatus.BAD_REQUEST);
             }
             else
                 //Проверка возможности добавления файлов, если коммит отклонен или принят
             if(!historyRepo.findByCommitIdAndActivity(commitId,Activity.REJECT.getTitle()).isEmpty() || !typeOfFile.isEnableAfterAccept() && !historyRepo.findByCommitIdAndActivity(commitId,Activity.ACCEPT.getTitle()).isEmpty()){
-                throw new FileException("Добавление файлов для данного наката заблокировано");
+                throw new ServiceException("Добавление файлов для данного наката заблокировано", HttpStatus.BAD_REQUEST);
             }
 
              else {
@@ -162,7 +159,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                         }
                     }
                     if (counts == 0) {
-                        throw new FileException("У файла неудовлетворительное расширение");
+                        throw new ServiceException("У файла неудовлетворительное расширение", HttpStatus.BAD_REQUEST);
                     }
                 }
 
@@ -170,13 +167,13 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                 //допилить, нет сравнения по наименованию
                 String message = FileUtil.compareFile(fileArrays);
                 if (message != null) {
-                    throw new FileException("Файл " + message + " уже существует ");
+                    throw new ServiceException("Файл " + message + " уже существует ", HttpStatus.BAD_REQUEST);
                 }
 
                 for (MultipartFile uploadedFile : files) {
                     if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                         //рамер файла превышает допустимый
-                        throw new FileException("размер файла превыщает допустимый");
+                        throw new ServiceException("размер файла превыщает допустимый", HttpStatus.BAD_REQUEST);
 
                       
 

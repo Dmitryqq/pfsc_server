@@ -1,6 +1,5 @@
 package com.pfscServer.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +12,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 
-    @ExceptionHandler(FileException.class)
-    protected ResponseEntity<AwesomeException> handleFileException(FileException ex) {
-        return new ResponseEntity<>(new AwesomeException(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(ServiceException.class)
+    protected ResponseEntity<AwesomeException> handleFileException(ServiceException ex) {
+        return new ResponseEntity<>(new AwesomeException(ex.getMessage()), ex.getStatus());
     }
 
     @Data

@@ -2,7 +2,7 @@ package com.pfscServer.controller;
 
 
 import com.pfscServer.domain.*;
-import com.pfscServer.exception.FileException;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.service.FileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,7 +54,7 @@ public class FileController {
     }*/
 
     @PostMapping
-    public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException, FileException {
+    public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException, ServiceException {
         if (fileTypeId == null || commitId == null || files == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
