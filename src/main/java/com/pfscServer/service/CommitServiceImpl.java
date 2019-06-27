@@ -6,7 +6,7 @@
 package com.pfscServer.service;
 
 import com.pfscServer.domain.*;
-import com.pfscServer.repo.ApplicationUserRepository;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.repo.CommitHistoryRepo;
 import com.pfscServer.repo.CommitsRepo;
 import com.pfscServer.repo.ConfigsRepo;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.pfscServer.repo.FileTypesRepo;
 import com.pfscServer.repo.FilesRepo;
+import org.springframework.http.HttpStatus;
 /**
  *
  * @author User
@@ -31,7 +32,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     @Autowired
     ConfigsRepo configRepo;
     @Autowired
-    ApplicationUserRepository userRepo;
+    UserDetailsServiceImpl userService;
     @Autowired
     FileTypesRepo fileTypeRepo;
     @Autowired
@@ -48,7 +49,12 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     
     @Override
     public List<CommitDto> getDtoAll() {
-        List<CommitDto> commits = commitRepo.findWithHistory();
+        List<CommitDto> commits;
+        ApplicationUser user = userService.getCurrentUser();
+        if(user.getRole().getRoleName().equals("User"))
+            commits = commitRepo.findByUserIdDto(user.getId());
+        else
+            commits = commitRepo.findAllDto();
         return commits;
     }
 
@@ -60,7 +66,7 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     
     @Override
     public CommitDto getDtoById(Long id) {
-        CommitDto commit = commitRepo.findByIdWithHistory(id); 
+        CommitDto commit = commitRepo.findByIdDto(id); 
         if(commit == null)
             return null;
         commit.setFileTypes(fileTypeRepo.findAllDto());
@@ -71,13 +77,14 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     }
     
     @Override
-    public Commit create(Commit t) throws IOException{
+    public CommitDto create(Commit t) throws IOException{
         Config rootDir = configRepo.findFirstByName("rootDir");
-        ApplicationUser user = userRepo.findById(t.getUserId()).orElse(null);
+        ApplicationUser user = userService.getCurrentUser();
         Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
         if(rootDir == null || user == null || mark == null) 
             return null;
         t.setMark(mark);
+        t.setUserId(user.getId());
         t.setUser(user);
         t.setCreateDate(LocalDateTime.now());
         String dateString = DateUtil.getDateString(LocalDateTime.now(), "-");
@@ -87,36 +94,45 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
         t.setNumber(n+1);
         for(FileType tof : fileTypeRepo.findAll())
             FileUtil.createDir(t.getDir(rootDir.getValue())+"\\"+tof.getName());       
-        return commitRepo.save(t);
+        t = commitRepo.save(t);
+        return new CommitDto(t,null);
     }
 
     @Override
     public List<CommitDto> find(String description) {
+        ApplicationUser user = userService.getCurrentUser();
+        List<CommitDto> commits;
         LocalDateTime startDate = DateUtil.convertToDate(description+" 00:00","dd-MM-yyyy HH:mm");
         if(startDate != null)
         {
             LocalDateTime endDate = DateUtil.convertToDate(description+" 23:59","dd-MM-yyyy HH:mm");
-            return commitRepo.findByDescriptionOrCreateDate(description,startDate,endDate);
+            if(user.getRole().getRoleName().equals("User"))
+                commits = commitRepo.findByUserIdAndDescriptionOrCreateDate(description,startDate,endDate,user.getId());
+            else
+                commits = commitRepo.findByDescriptionOrCreateDate(description,startDate,endDate);
         }
         else 
-            return commitRepo.findByDescriptionContaining(description);
+            if(user.getRole().getRoleName().equals("User"))
+                commits = commitRepo.findByUserIdAndDescriptionContaining(description,user.getId());
+            else
+                commits = commitRepo.findByDescriptionContaining(description);
+        return commits;
     }
     
     @Override
-    public Commit update(Long id, Commit t) throws Exception{
-        Commit commit = commitRepo.findById(id).orElse(null);
-        Mark mark = markRepo.findById(t.getMarkId()).orElse(null);
-        if( commit == null || mark == null)
-            throw new Exception("Bad request");
-        if(historyRepo.findByCommitId(id).isEmpty()){
-            commit.setDescription(t.getDescription());
-            commit.setMark(mark);
-            commit.setMarkId(mark.getId());
-            commit.setUpdateDate(LocalDateTime.now());
-            return commitRepo.save(commit);   
-        }
-        else
-            return null;
+    public CommitDto update(Long id,Commit t) throws ServiceException{  
+        Mark mark = markRepo.findById(t.getMarkId()).orElse(null);    
+        if(mark == null)
+            throw new ServiceException("Отсутствует метка с id "+t.getMarkId(), HttpStatus.BAD_REQUEST);
+        if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
+            throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);
+        Commit commit = commitRepo.getOne(id);
+        commit.setDescription(t.getDescription());
+        commit.setMark(mark);
+        commit.setMarkId(mark.getId());
+        commit.setUpdateDate(LocalDateTime.now());
+        commit = commitRepo.save(commit);
+        return new CommitDto(commit,null);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.pfscServer.controller;
 
 
 import com.pfscServer.domain.*;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.service.FileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,15 +30,23 @@ public class FileController {
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
 
-    @GetMapping("{id}")
+   /* @GetMapping("{id}")
     public ResponseEntity<File> getOne(@PathVariable("id") Long fileId) {
         File file = fileService.getById(fileId);
         if (file == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(file, HttpStatus.OK);
+    }*/
+
+    //Показать есть ли уникальные файлы
+    @GetMapping("{id}")
+    public String fileCount(@PathVariable("id") Long fileId) throws IOException {
+        String message = fileService.comparison(fileId);
+        return message;
     }
 
+    //Удаление всех записей
     /*@GetMapping("{id}")
     public int fileCount(@PathVariable("id") Long fileId, @RequestParam("file") MultipartFile[] files) {
         int count = fileRepo.countFiles(fileId) + files.length;
@@ -45,7 +54,7 @@ public class FileController {
     }*/
 
     @PostMapping
-    public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException {
+    public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException, ServiceException {
         if (fileTypeId == null || commitId == null || files == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
@@ -56,8 +65,8 @@ public class FileController {
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<File> delete(@PathVariable("id") Long fileId) throws IOException {
-        fileService.delete(fileId);
+    public ResponseEntity<File> delete(@PathVariable("id") Long fileId) throws IOException, ServiceException {
+        fileService.deleteById(fileId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

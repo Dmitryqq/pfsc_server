@@ -23,6 +23,7 @@ public class FileType implements Serializable {
     private boolean required;
     private String types;
     private int maxAmount;
+    private boolean enableAfterAccept;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     @Column(updatable = false, insertable = false, nullable = false, name="role_id")
@@ -110,5 +111,12 @@ public class FileType implements Serializable {
     public void setRole(Role role) {
         this.role = role;
     }
+    
+    public boolean isEnableAfterAccept() {
+        return enableAfterAccept;
+    }
 
+    public void setEnableAfterAccept(boolean enableAfterAccept) {
+        this.enableAfterAccept = enableAfterAccept;
+    }
 }

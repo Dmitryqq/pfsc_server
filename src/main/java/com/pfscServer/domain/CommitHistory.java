@@ -38,12 +38,23 @@ public class CommitHistory implements Serializable {
     private Commit commit;
     
     @Column(updatable = false, nullable = false)
-    private boolean accepted;
+    private String activity;
+    
+    @Column(updatable = false, nullable = false, name="user_id")
+    private Long userId;
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
     
     @Column(updatable = false, nullable = false, name="create_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createDate;
-
+    
     public Long getId() {
         return id;
     }
@@ -68,12 +79,12 @@ public class CommitHistory implements Serializable {
         this.commit = commit;
     }
 
-    public boolean isAccepted() {
-        return accepted;
+    public String getActivity() {
+        return activity;
     }
 
-    public void setAccepted(boolean accepted) {
-        this.accepted = accepted;
+    public void setActivity(String activity) {
+        this.activity = activity;
     }
 
     public LocalDateTime getCreateDate() {

@@ -107,6 +107,10 @@ public class Commit implements Serializable {
     public Long getUserId() {
         return userId;
     }
+    
+     public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public ApplicationUser getUser() {
         return user;
