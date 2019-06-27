@@ -2,11 +2,9 @@ package com.pfscServer.service;
 
 import com.pfscServer.domain.ApplicationUser;
 import com.pfscServer.domain.Commit;
+import com.pfscServer.domain.Config;
 import com.pfscServer.domain.Mark;
-import com.pfscServer.repo.ApplicationUserRepository;
-import com.pfscServer.repo.CommitsRepo;
-import com.pfscServer.repo.FilesRepo;
-import com.pfscServer.repo.MarksRepo;
+import com.pfscServer.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -32,20 +30,25 @@ public class MailSenderServiceImpl implements MailSenderService {
     private FilesRepo fileRepo;
     @Autowired
     private MarksRepo markRepo;
+    @Autowired
+    private ConfigsRepo configRepo;
 
     @Value("${spring.mail.username}")
     private String username;
+
+
 
     @Override
     public void send(ApplicationUser user, boolean status, Commit commit, String messageText) throws MessagingException, IOException {
         Mark mark = markRepo.findById(commit.getMarkId()).orElse(null);
         sendEngine(status, commit, user, messageText);
+        Config rootDir = configRepo.findFirstByName("ABD");
         if (status == true) {
             MimeMessage message = mailSender.createMimeMessage();
             boolean multipart = true;
             MimeMessageHelper mailMessage = new MimeMessageHelper(message, multipart);
             mailMessage.setFrom(username);//поменять
-            mailMessage.setTo(user.getEmail());//кому передать вычислить
+            mailMessage.setTo(rootDir.getValue());//кому передать вычислить
             mailMessage.setSubject("Прошу принять накат");//тему тоже подписать
             String text = mailTemplateFile("ABD.txt");
             text = text.replaceFirst("nameABD", user.getName());
