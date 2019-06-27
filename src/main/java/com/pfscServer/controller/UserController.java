@@ -68,10 +68,13 @@ public class UserController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
+        if(applicationUserRepository.findByUsername(user.getUsername()) != null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Role role = rolesRepo.findById(user.getRoleId()).orElse(null);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setRole(role);
-        user.setCreate_date(LocalDateTime.now());
+        user.setCreateDate(LocalDateTime.now());
         applicationUserRepository.save(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -86,9 +89,9 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         BeanUtils.copyProperties(user, userFromDb, "id");
-        Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
+        Role role = rolesRepo.findById(user.getRoleId()).orElse(null);
         userFromDb.setRole(role);
-        userFromDb.setUpdate_date(LocalDateTime.now());
+        userFromDb.setUpdateDate(LocalDateTime.now());
         applicationUserRepository.save(userFromDb);
         return new ResponseEntity<>(userFromDb, HttpStatus.OK);
     }
@@ -104,10 +107,12 @@ public class UserController {
     }
     @PostMapping("/sign-up")
     public void signUp(@RequestBody ApplicationUser user) {
-        Role role = rolesRepo.findById(user.getRole_id()).orElse(null);
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setRole(role);
-        user.setCreate_date(LocalDateTime.now());
-        applicationUserRepository.save(user);
+        if(applicationUserRepository.findByUsername(user.getUsername()) == null){
+            Role role = rolesRepo.findById(user.getRoleId()).orElse(null);
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            user.setRole(role);
+            user.setCreateDate(LocalDateTime.now());
+            applicationUserRepository.save(user);
+        }
     }
 }
