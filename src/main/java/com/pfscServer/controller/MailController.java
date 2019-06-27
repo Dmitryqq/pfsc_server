@@ -20,6 +20,7 @@ public class MailController {
     @GetMapping
     public String list() throws IOException, MessagingException {
         Long id = 87l;
+        mailSenderServiceImpl.sendOp("nastyhero20@gmail.com","Тест", "Тест Успешен" );
         return "Main send, check";
     }
 }
