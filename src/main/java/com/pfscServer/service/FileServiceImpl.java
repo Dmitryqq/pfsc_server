@@ -115,83 +115,13 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                     throw new ServiceException("Добавление файлов для данного наката заблокировано", HttpStatus.LOCKED);
                 } else {
                     String path = commit.getDir(rootDir.getValue()) + "\\" + typeOfFile.getName();
-                    FileUtil.directoryExist(path);
-                    //Кол-во файлов по данному commit id
-                    List<String> allFile = fileRepo.allFiles(commitId, fileId);
-                    //лист байтов
-                    List<FileArray> fileArrays = new ArrayList<>();
 
-                /*
-                //При помощи java.nio выборка файлов
-                List<Path> newFilesNIO = new ArrayList<Path>();
-                if (allFile != null) {
-                    for (String tempPath : allFile) {
-                        Path tempFilePath = Paths.get(tempPath);
-                        if (Files.exists(tempFilePath)) {
-                            newFilesNIO.add(tempFilePath);
-                        }
-                    }
-                }
-                //При помощи java.io выборка байтовых значений файлов
-                for (Path temps : newFilesNIO) {
-                    listByte.add(FileCopyUtils.copyToByteArray(temps.toFile()));
-                }
-                */
-
-
-                    //При помощи java.io выборка байтовых значений файлов
-                    if (allFile != null) {
-                        for (String tempPath : allFile) {
-                            FileArray tempFile = new FileArray();
-                            java.io.File tempFilePath = new java.io.File(tempPath);
-                            tempFile.fileName = tempFilePath.getName();
-                            tempFile.path = tempPath;
-                            tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
-                            tempFile.downloaded = false;
-                            fileArrays.add(tempFile);
-                        }
-                    }
-
-
-                    //выборка байтов загружаемых файлов
-                    for (MultipartFile uploadFile : files) {
-                        FileArray tempFile = new FileArray();
-                        String pathFile = path + "\\" + uploadFile.getOriginalFilename();
-                        tempFile.fileName = uploadFile.getOriginalFilename();
-                        tempFile.path = pathFile;
-                        tempFile.downloaded = true;
-                        fileArrays.add(tempFile);
-                    }
-
-                    //проверка на расширение файла
-                    String temps = typeOfFile.getTypes();
-                    String[] arrStrings1 = temps.split(",");
-                    for (MultipartFile uploadFile : files) {
-                        String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
-                        Integer counts = 0;
-                        for (String arrStrings11 : arrStrings1) {
-                            if (tempType.equals(arrStrings11)) {
-                                counts++;
-                            }
-                        }
-                        if (counts == 0) {
-                            throw new ServiceException("У файла неудовлетворительное расширение", HttpStatus.BAD_REQUEST);
-                        }
-                    }
-
-                    //сравнение файлов
-                    //допилить, нет сравнения по наименованию
-                    String message = FileUtil.compareFile(fileArrays);
-                    if (message != null) {
-                        throw new ServiceException("Файл " + message + " уже существует ", HttpStatus.BAD_REQUEST);
-                    }
+                    fileOperation(path, commitId, fileId, typeOfFile, files);
 
                     for (MultipartFile uploadedFile : files) {
                         if (uploadedFile.getSize() > typeOfFile.getMaxSize() * 1024 * 1024) {
                             //рамер файла превышает допустимый
-                            throw new ServiceException("размер файла превыщает допустимый", HttpStatus.BAD_REQUEST);
-
-
+                            throw new ServiceException("размер " + uploadedFile.getOriginalFilename() + " превыщает допустимый", HttpStatus.BAD_REQUEST);
                         } else {
                             File tempFile = new File();
                             tempFile.setFileTypeId(fileId);
@@ -256,7 +186,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         List<FileType> fileType = typeOfFileRepo.findAll();
         for (FileType temp : fileType) {
             if (temp.isRequired()) {
-                if(fileRepo.countFiles(commitId, temp.getId())<=0){
+                if (fileRepo.countFiles(commitId, temp.getId()) <= 0) {
                     return temp.getName();
                 }
             }
@@ -264,6 +194,74 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
         return null;
     }
 
+    public void fileOperation(String path, Long commitId, Long fileId, FileType typeOfFile, MultipartFile[] files) throws IOException, ServiceException {
+        FileUtil.directoryExist(path);
+        //Кол-во файлов по данному commit id
+        List<String> allFile = fileRepo.allFiles(commitId, fileId);
+        //лист байтов
+        List<FileArray> fileArrays = new ArrayList<>();
+
+                /*
+                //При помощи java.nio выборка файлов
+                List<Path> newFilesNIO = new ArrayList<Path>();
+                if (allFile != null) {
+                    for (String tempPath : allFile) {
+                        Path tempFilePath = Paths.get(tempPath);
+                        if (Files.exists(tempFilePath)) {
+                            newFilesNIO.add(tempFilePath);
+                        }
+                    }
+                }
+                */
+
+
+        //При помощи java.io выборка байтовых значений файлов
+        if (allFile != null) {
+            for (String tempPath : allFile) {
+                FileArray tempFile = new FileArray();
+                java.io.File tempFilePath = new java.io.File(tempPath);
+                tempFile.fileName = tempFilePath.getName();
+                tempFile.path = tempPath;
+                tempFile.content = FileCopyUtils.copyToByteArray(tempFilePath);
+                tempFile.downloaded = false;
+                fileArrays.add(tempFile);
+            }
+        }
+
+
+        //выборка байтов загружаемых файлов
+        for (MultipartFile uploadFile : files) {
+            FileArray tempFile = new FileArray();
+            String pathFile = path + "\\" + uploadFile.getOriginalFilename();
+            tempFile.fileName = uploadFile.getOriginalFilename();
+            tempFile.path = pathFile;
+            tempFile.downloaded = true;
+            fileArrays.add(tempFile);
+        }
+
+        //проверка на расширение файла
+        String temps = typeOfFile.getTypes();
+        String[] arrStrings1 = temps.split(",");
+        for (MultipartFile uploadFile : files) {
+            String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
+            Integer counts = 0;
+            for (String arrStrings11 : arrStrings1) {
+                if (tempType.equals(arrStrings11)) {
+                    counts++;
+                }
+            }
+            if (counts == 0) {
+                throw new ServiceException("У файла неудовлетворительное расширение", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        //сравнение файлов
+        //допилить, нет сравнения по наименованию
+        String message = FileUtil.compareFile(fileArrays);
+        if (message != null) {
+            throw new ServiceException("Файл " + message + " уже существует ", HttpStatus.BAD_REQUEST);
+        }
+    }
 
 }
 
