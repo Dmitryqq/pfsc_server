@@ -39,4 +39,6 @@ public interface CommitsRepo extends JpaRepository<Commit, Long>{
     
     @Query(joinQuery +" where a.id=?1")
     CommitDto findByIdDto(Long id);
+    
+    boolean existsCommitByMarkId(Long markId);
 }

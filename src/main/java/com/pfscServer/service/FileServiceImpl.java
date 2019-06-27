@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -211,8 +212,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
                         //выполнение сохранения файла через java.io
                         //uploadedFile.transferTo(new java.io.File(pathFile));
-
-                        file.add(tempFile);
+                        tempFile.setCreateDate(LocalDateTime.now());
+                        file.add(tempFile);          
                         commitHistoryService.create(commit, Activity.ADDFILE);
                     }
                 }
