@@ -98,7 +98,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             throw new ServiceException("Превышен лимит количества файлов", HttpStatus.BAD_REQUEST);
         } else {
 
-            if (file == null || commit == null || typeOfFile == null) {
+            if (files == null || commit == null || typeOfFile == null) {
                 //одно из полей пустое
                 throw new ServiceException("одно из полей пустое", HttpStatus.BAD_REQUEST);
             } else {
