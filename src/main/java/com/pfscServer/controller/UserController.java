@@ -88,10 +88,16 @@ public class UserController {
         if (userFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        BeanUtils.copyProperties(user, userFromDb, "id");
         Role role = rolesRepo.findById(user.getRoleId()).orElse(null);
-        userFromDb.setRole(role);
-        userFromDb.setUpdateDate(LocalDateTime.now());
+        user.setRole(role);
+        if(user.getPassword()==""){
+            user.setPassword(userFromDb.getPassword());
+        }
+        else{
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+        user.setUpdateDate(LocalDateTime.now());
+        BeanUtils.copyProperties(user, userFromDb, "id");
         applicationUserRepository.save(userFromDb);
         return new ResponseEntity<>(userFromDb, HttpStatus.OK);
     }
