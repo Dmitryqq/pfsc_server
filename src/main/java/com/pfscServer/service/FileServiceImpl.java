@@ -235,6 +235,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             String pathFile = path + "\\" + uploadFile.getOriginalFilename();
             tempFile.fileName = uploadFile.getOriginalFilename();
             tempFile.path = pathFile;
+            tempFile.content = uploadFile.getBytes();
             tempFile.downloaded = true;
             fileArrays.add(tempFile);
         }
