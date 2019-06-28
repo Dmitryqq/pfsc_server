@@ -142,10 +142,10 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     
     @Override
     public void delete(Long id) throws ServiceException{
-        if(fileRepo.findByCommitId(id).isEmpty())
+        if(historyRepo.findByCommitId(id).isEmpty())
             commitRepo.deleteById(id);
         else
-            throw new ServiceException("Накат не может быть удален, так как содержит файлы", HttpStatus.BAD_REQUEST);
+            throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);      
     }
     
 }

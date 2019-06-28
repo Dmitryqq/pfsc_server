@@ -247,13 +247,15 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             String tempType = FileUtil.getFileExtension(uploadFile.getOriginalFilename());
             Integer counts = 0;
             for (String arrStrings11 : arrStrings1) {
+                tempType = tempType.toLowerCase();
+                arrStrings11 = arrStrings11.toLowerCase();
                 if (tempType.equals(arrStrings11)) {
                     counts++;
                 }
             }
             if (counts == 0) {
-                throw new ServiceException("У файла неудовлетворительное расширение", HttpStatus.BAD_REQUEST);
-            }
+                throw new ServiceException("У файла " + uploadFile.getOriginalFilename() + " неудовлетворительное расширение", HttpStatus.BAD_REQUEST);
+        }
         }
 
         //сравнение файлов
