@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import com.pfscServer.repo.FileTypesRepo;
 
@@ -51,6 +52,7 @@ public class FileTypeController {
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        typeOfFile.setCreateDate(LocalDateTime.now());
         typeOfFileRepo.save(typeOfFile);
         return new ResponseEntity<>(typeOfFile, HttpStatus.CREATED);
     }
@@ -64,6 +66,7 @@ public class FileTypeController {
         if (typeOfFileFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        typeOfFile.setUpdateDate(LocalDateTime.now());
         BeanUtils.copyProperties(typeOfFile, typeOfFileFromDb, "id");
         typeOfFileRepo.save(typeOfFileFromDb);
         return new ResponseEntity<>(typeOfFileFromDb, HttpStatus.OK);
