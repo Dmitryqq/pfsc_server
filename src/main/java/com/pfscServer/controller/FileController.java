@@ -30,20 +30,13 @@ public class FileController {
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
 
-   /* @GetMapping("{id}")
+    @GetMapping("{id}")
     public ResponseEntity<File> getOne(@PathVariable("id") Long fileId) {
         File file = fileService.getById(fileId);
         if (file == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(file, HttpStatus.OK);
-    }*/
-
-    //Показать есть ли уникальные файлы
-    @GetMapping("{id}")
-    public String fileCount(@PathVariable("id") Long fileId) throws IOException {
-        String message = fileService.comparison(fileId);
-        return message;
     }
 
     //Удаление всех записей
