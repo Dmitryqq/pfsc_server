@@ -32,10 +32,12 @@ public class FileController {
 
     @GetMapping("{id}")
     public ResponseEntity<java.io.File> getOne(@PathVariable("id") Long fileId) {
+
         File file = fileService.getById(fileId);
         if (file == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         java.io.File newFile = new java.io.File(file.getPath());
         return new ResponseEntity<>(newFile, HttpStatus.OK);
     }
@@ -45,7 +47,9 @@ public class FileController {
     public String fileCount(@PathVariable("id") Long fileId) throws IOException {
         String message = fileService.comparison(fileId);
         return message;
-    }
+
+        return new ResponseEntity<>(file, HttpStatus.OK);
+
 
     //Удаление всех записей
     /*@GetMapping("{id}")

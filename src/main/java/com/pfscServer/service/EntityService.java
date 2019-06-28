@@ -5,6 +5,7 @@
  */
 package com.pfscServer.service;
 
+import com.pfscServer.exception.ServiceException;
 import java.io.IOException;
 import java.util.List;
 /**
@@ -21,6 +22,6 @@ public interface EntityService<T,S> {
     
     T save(T t);
 
-    void delete(S id) throws IOException;
+    void delete(S id) throws IOException,ServiceException;
     
 }

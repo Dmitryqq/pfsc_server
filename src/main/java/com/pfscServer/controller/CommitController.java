@@ -76,4 +76,15 @@ public class CommitController {
         return new ResponseEntity<>(commitService.update(commitId,commit),HttpStatus.OK);
     }
     
+    @DeleteMapping("{id}")
+    public ResponseEntity<CommitDto> delete(@PathVariable("id") Long commitId) throws ServiceException {
+        Commit commit = commitService.getById(commitId);
+        if(commit == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ApplicationUser user = userService.getCurrentUser();
+        if(user.getId() != commit.getUserId() && !user.getRole().getRoleName().equals("Admin"))
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        commitService.delete(commitId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
