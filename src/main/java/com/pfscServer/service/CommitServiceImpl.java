@@ -141,11 +141,15 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     }
     
     @Override
-    public void delete(Long id) throws ServiceException{
-        if(historyRepo.findByCommitId(id).isEmpty())
-            commitRepo.deleteById(id);
-        else
-            throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);      
+    public void delete(Long id) throws ServiceException, IOException{
+        if(historyRepo.findByCommitIdAndActivity(id,Activity.REJECT.getTitle()).size()>0 || historyRepo.findByCommitIdAndActivity(id,Activity.ACCEPT.getTitle()).size()>0)
+            throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);    
+        historyRepo.deleteAll(historyRepo.findByCommitId(id));
+        fileRepo.deleteAll(fileRepo.findByCommitId(id));
+        Config rootDir = configRepo.findFirstByName("rootDir");
+        Commit commit = commitRepo.getOne(id);
+        FileUtil.deleteDir(commit.getDir(rootDir.getValue()));
+        commitRepo.deleteById(id);            
     }
     
 }

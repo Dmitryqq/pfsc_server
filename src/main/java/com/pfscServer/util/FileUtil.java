@@ -38,7 +38,6 @@ public class FileUtil {
 
     //создание директории если ее не существует
     public static void directoryExist(String path) throws IOException {
-        System.out.println(path);
         Path testFilePath = Paths.get(path);
         if (!Files.exists(testFilePath)) {
             Files.createDirectory(testFilePath);
