@@ -12,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.http.MediaType;
+import org.springframework.util.FileCopyUtils;
 
 @RestController
 @RequestMapping("file")
@@ -31,15 +34,17 @@ public class FileController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<java.io.File> getOne(@PathVariable("id") Long fileId) {
-
+    public  ResponseEntity<byte[]> getOne(@PathVariable("id") Long fileId, HttpServletRequest request) throws IOException {
         File file = fileService.getById(fileId);
         if (file == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        java.io.File newFile = new java.io.File(file.getPath());
-        return new ResponseEntity<>(newFile, HttpStatus.OK);
+        java.io.File tempFilePath = new java.io.File(file.getPath());
+        String contentType = request.getServletContext().getMimeType(tempFilePath.getAbsolutePath());
+        byte[] resource = FileCopyUtils.copyToByteArray(tempFilePath);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(resource);
     }
 
     /*//Показать есть ли уникальные файлы

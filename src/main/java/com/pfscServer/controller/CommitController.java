@@ -77,7 +77,7 @@ public class CommitController {
     }
     
     @DeleteMapping("{id}")
-    public ResponseEntity<CommitDto> delete(@PathVariable("id") Long commitId) throws ServiceException {
+    public ResponseEntity<CommitDto> delete(@PathVariable("id") Long commitId) throws ServiceException, IOException {
         Commit commit = commitService.getById(commitId);
         if(commit == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
