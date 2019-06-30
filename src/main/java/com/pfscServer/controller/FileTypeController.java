@@ -1,6 +1,8 @@
 package com.pfscServer.controller;
 
 import com.pfscServer.domain.FileType;
+import com.pfscServer.domain.Role;
+import com.pfscServer.repo.RolesRepo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,10 +17,12 @@ import com.pfscServer.repo.FileTypesRepo;
 @RequestMapping("typeOfFile")
 public class FileTypeController {
     private final FileTypesRepo typeOfFileRepo;
+    private final RolesRepo rolesRepo;
 
     @Autowired
-    public FileTypeController(FileTypesRepo typeOfFileRepo) {
+    public FileTypeController(FileTypesRepo typeOfFileRepo, RolesRepo rolesRepo) {
         this.typeOfFileRepo = typeOfFileRepo;
+        this.rolesRepo = rolesRepo;
     }
 
 
@@ -52,6 +56,8 @@ public class FileTypeController {
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        Role role = rolesRepo.findById(typeOfFile.getRoleId()).orElse(null);
+        typeOfFile.setRole(role);
         typeOfFile.setCreateDate(LocalDateTime.now());
         typeOfFileRepo.save(typeOfFile);
         return new ResponseEntity<>(typeOfFile, HttpStatus.CREATED);
@@ -66,6 +72,8 @@ public class FileTypeController {
         if (typeOfFileFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        Role role = rolesRepo.findById(typeOfFile.getRoleId()).orElse(null);
+        typeOfFile.setRole(role);
         typeOfFile.setUpdateDate(LocalDateTime.now());
         BeanUtils.copyProperties(typeOfFile, typeOfFileFromDb, "id");
         typeOfFileRepo.save(typeOfFileFromDb);
