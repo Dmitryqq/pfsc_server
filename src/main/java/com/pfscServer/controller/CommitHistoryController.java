@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import com.pfscServer.service.FileServiceImpl;
 import com.pfscServer.service.MailSenderServiceImpl;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,10 +66,13 @@ public class CommitHistoryController {
         }
     }
 
-    @GetMapping("{id}/reject")
-    public ResponseEntity<CommitHistory> rejectCommit(@PathVariable("id") Long commitId, @RequestBody String text) throws ServiceException, IOException {
+    @PostMapping("{id}/reject")
+    public ResponseEntity<CommitHistory> rejectCommit(@PathVariable("id") Long commitId, @RequestBody Map<String, String> text) throws ServiceException, IOException {
+        String message = text.get("text");
+        if(message == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         try {
-            CommitHistory history = historyService.rejectCommit(commitId, text);
+            CommitHistory history = historyService.rejectCommit(commitId, message);
             if (history == null)
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(history, HttpStatus.OK);
