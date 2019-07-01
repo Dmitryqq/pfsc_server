@@ -2,9 +2,6 @@ package com.pfscServer.controller;
 
 import com.pfscServer.domain.FileType;
 import com.pfscServer.domain.Role;
-import com.pfscServer.repo.RolesRepo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,18 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import com.pfscServer.repo.FileTypesRepo;
+import com.pfscServer.repo.RolesRepo;
 
 @Api(description = "Операции по взаимодействию с типами файлов")
 @RestController
 @RequestMapping("typeOfFile")
 public class FileTypeController {
     private final FileTypesRepo typeOfFileRepo;
-    private final RolesRepo rolesRepo;
-
+    private final RolesRepo roleRepo;
+    
     @Autowired
-    public FileTypeController(FileTypesRepo typeOfFileRepo, RolesRepo rolesRepo) {
+    public FileTypeController(FileTypesRepo typeOfFileRepo, RolesRepo roleRepo) {
         this.typeOfFileRepo = typeOfFileRepo;
-        this.rolesRepo = rolesRepo;
+        this.roleRepo = roleRepo;
     }
 
     @ApiOperation(value = "Получение списка всех типов файлов, доступных для загрузки")
@@ -57,7 +55,9 @@ public class FileTypeController {
         if (typeOfFile == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Role role = rolesRepo.findById(typeOfFile.getRoleId()).orElse(null);
+        Role role = roleRepo.findById(typeOfFile.getRoleId()).orElse(null);
+        if(role == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         typeOfFile.setRole(role);
         typeOfFile.setCreateDate(LocalDateTime.now());
         typeOfFileRepo.save(typeOfFile);
@@ -71,13 +71,15 @@ public class FileTypeController {
             @RequestBody FileType typeOfFile
     ) {
         FileType typeOfFileFromDb = typeOfFileRepo.findById(typeOfFileId).orElse(null);
-        if (typeOfFileFromDb == null) {
+        Role role = roleRepo.findById(typeOfFile.getRoleId()).orElse(null);
+        if (typeOfFileFromDb == null || role == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Role role = rolesRepo.findById(typeOfFile.getRoleId()).orElse(null);
         typeOfFile.setRole(role);
         typeOfFile.setUpdateDate(LocalDateTime.now());
         BeanUtils.copyProperties(typeOfFile, typeOfFileFromDb, "id");
+        typeOfFileFromDb.setRole(role);
         typeOfFileRepo.save(typeOfFileFromDb);
         return new ResponseEntity<>(typeOfFileFromDb, HttpStatus.OK);
     }

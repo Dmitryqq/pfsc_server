@@ -40,5 +40,8 @@ public interface CommitsRepo extends JpaRepository<Commit, Long>{
     @Query(joinQuery +" where a.id=?1")
     CommitDto findByIdDto(Long id);
     
+    @Query("select new com.pfscServer.domain.CommitDto(a,b.activity) from Commit a inner join CommitHistory b on b.commitId = a.id and b.activity=?1 order by a.createDate desc")
+    List<CommitDto> findByActivityDto(String activity);
+    
     boolean existsCommitByMarkId(Long markId);
 }
