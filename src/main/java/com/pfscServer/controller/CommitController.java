@@ -12,6 +12,9 @@ import com.pfscServer.service.UserDetailsServiceImpl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author User
  */
+@Api(description = "Операции по взаимодействию с накатами")
 @RestController
 @RequestMapping("commit")
 public class CommitController {
@@ -28,12 +32,14 @@ public class CommitController {
     CommitServiceImpl commitService;
     @Autowired
     UserDetailsServiceImpl userService;
-      
+
+    @ApiOperation(value = "Получение списка накатов")
     @GetMapping
     public  ResponseEntity<List<CommitDto>> list() {
         return new ResponseEntity<>(commitService.getDtoAll(),HttpStatus.OK);
     }
-    
+
+    @ApiOperation(value = "Получение наката по id")
     @GetMapping("{id}")
     public ResponseEntity<CommitDto> getCommit(@PathVariable("id") Long commitId){
         CommitDto commit = commitService.getDtoById(commitId);
@@ -44,7 +50,8 @@ public class CommitController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         return new ResponseEntity<>(commit,HttpStatus.OK);
     }
-    
+
+    @ApiOperation(value = "Создание наката")
     @PostMapping
     public ResponseEntity<CommitDto> create(@RequestBody Commit commit) throws IOException{
         if (commit == null) {
@@ -56,7 +63,8 @@ public class CommitController {
         else
             return new ResponseEntity<>(commitDto,HttpStatus.CREATED);         
     }
-    
+
+    @ApiOperation(value = "Поиск наката")
     @PostMapping("search")
     public ResponseEntity<List<CommitDto>> search(@RequestBody Map<String, String> param) {
         String sParam = param.get("param");
@@ -64,7 +72,8 @@ public class CommitController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(commitService.find(sParam),HttpStatus.OK);
     }
-    
+
+    @ApiOperation(value = "Обновление наката")
     @PutMapping("{id}")
     public ResponseEntity<CommitDto> update(@PathVariable("id") Long commitId, @RequestBody Commit commit) throws ServiceException{
         Commit dbCommit = commitService.getById(commitId);
@@ -75,7 +84,8 @@ public class CommitController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         return new ResponseEntity<>(commitService.update(commitId,commit),HttpStatus.OK);
     }
-    
+
+    @ApiOperation(value = "Удаление наката")
     @DeleteMapping("{id}")
     public ResponseEntity<CommitDto> delete(@PathVariable("id") Long commitId) throws ServiceException, IOException {
         Commit commit = commitService.getById(commitId);

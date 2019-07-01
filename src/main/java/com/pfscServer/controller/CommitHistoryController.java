@@ -16,6 +16,9 @@ import java.io.IOException;
 import com.pfscServer.service.FileServiceImpl;
 import com.pfscServer.service.MailSenderServiceImpl;
 import java.util.Map;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,7 @@ import javax.mail.MessagingException;
 /**
  * @author User
  */
+@Api(description = "Операции по взаимодействию с накатами")
 @RestController
 @RequestMapping("commit")
 public class CommitHistoryController {
@@ -39,6 +43,7 @@ public class CommitHistoryController {
     @Autowired
     ConfigsRepo configRepo;
 
+    @ApiOperation(value = "Принять накат")
     @GetMapping("{id}/accept")
     public ResponseEntity<CommitHistory> acceptCommit(@PathVariable("id") Long commitId) throws ServiceException, IOException {
         try {
@@ -66,6 +71,7 @@ public class CommitHistoryController {
         }
     }
 
+    @ApiOperation(value = "Отклонить накат")
     @PostMapping("{id}/reject")
     public ResponseEntity<CommitHistory> rejectCommit(@PathVariable("id") Long commitId, @RequestBody Map<String, String> text) throws ServiceException, IOException {
         String message = text.get("text");

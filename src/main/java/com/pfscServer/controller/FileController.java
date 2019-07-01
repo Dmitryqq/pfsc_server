@@ -4,6 +4,8 @@ package com.pfscServer.controller;
 import com.pfscServer.domain.*;
 import com.pfscServer.exception.ServiceException;
 import com.pfscServer.service.FileServiceImpl;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 
+@Api(description = "Операции по взаимодействию с файлами")
 @RestController
 @RequestMapping("file")
 public class FileController {
@@ -23,7 +26,7 @@ public class FileController {
     @Autowired
     FileServiceImpl fileService;
 
-
+    @ApiOperation(value = "Получение списка файлов")
     @GetMapping
     public ResponseEntity<List<File>> list() {
         List<File> files = fileService.getAll();
@@ -33,6 +36,7 @@ public class FileController {
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Получение файла")
     @GetMapping("{id}")
     public  ResponseEntity<byte[]> getOne(@PathVariable("id") Long fileId, HttpServletRequest request) throws IOException {
         File file = fileService.getById(fileId);
@@ -63,6 +67,7 @@ public class FileController {
         return count;
     }*/
 
+    @ApiOperation(value = "Создание файла")
     @PostMapping
     public ResponseEntity<List<File>> create(@RequestParam Long fileTypeId, @RequestParam Long commitId, @RequestParam("file") MultipartFile[] files) throws IOException, ServiceException {
         if (fileTypeId == null || commitId == null || files == null) {
@@ -73,7 +78,7 @@ public class FileController {
         }
     }
 
-
+    @ApiOperation(value = "Удаление файла по id")
     @DeleteMapping("{id}")
     public ResponseEntity<File> delete(@PathVariable("id") Long fileId) throws IOException, ServiceException {
         fileService.deleteById(fileId);

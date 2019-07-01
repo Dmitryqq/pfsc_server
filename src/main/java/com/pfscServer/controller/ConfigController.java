@@ -3,6 +3,8 @@ package com.pfscServer.controller;
 import com.pfscServer.domain.Config;
 import com.pfscServer.repo.ConfigsRepo;
 import com.pfscServer.repo.RolesRepo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,16 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Api(description = "Операции по взаимодействию с настройками")
 @RestController
 @RequestMapping("config")
 public class ConfigController {
     @Autowired
     private ConfigsRepo configsRepo;
 
-
-
-
-
+    @ApiOperation(value = "Получение списка настроек")
     @GetMapping
     public ResponseEntity<List<Config>> list() {
         List<Config> config = configsRepo.findAll();
@@ -30,7 +30,7 @@ public class ConfigController {
         return new ResponseEntity<>(config, HttpStatus.OK);
     }
 
-    //@JsonView(Views.FullRole.class)
+    @ApiOperation(value = "Получение настройки по id")
     @GetMapping("{id}")
     public ResponseEntity<Config> getOne(@PathVariable("id") Long configId) {
         if (configId == null) {
@@ -43,8 +43,7 @@ public class ConfigController {
         return new ResponseEntity<>(config, HttpStatus.OK);
     }
 
-
-
+    @ApiOperation(value = "Создание настройки")
     @PostMapping
     public ResponseEntity<Config> create(@RequestBody Config config) {
         if (config == null) {
@@ -54,6 +53,7 @@ public class ConfigController {
         return new ResponseEntity<>(config, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Обновление настройки")
     @PutMapping("{id}")
     public ResponseEntity<Config> update(
             @PathVariable("id") Long configId,
@@ -68,6 +68,7 @@ public class ConfigController {
         return new ResponseEntity<>(configFromDB, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Удаление настройки")
     @DeleteMapping("{id}")
     public ResponseEntity<Config> delete(@PathVariable("id") Long configId) {
         Config config = configsRepo.findById(configId).orElse(null);
