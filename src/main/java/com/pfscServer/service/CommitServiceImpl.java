@@ -51,10 +51,14 @@ public class CommitServiceImpl implements EntityService<Commit,Long>, CommitServ
     public List<CommitDto> getDtoAll() {
         List<CommitDto> commits;
         ApplicationUser user = userService.getCurrentUser();
-        if(user.getRole().getRoleName().equals("User"))
-            commits = commitRepo.findByUserIdDto(user.getId());
-        else
+        if(user.getRole().getRoleName().equals("Admin"))
             commits = commitRepo.findAllDto();
+        else if(user.getRole().getRoleName().equals("Admin ABD")){
+            commits = commitRepo.findByActivityDto(Activity.ACCEPT.getTitle());
+        }
+        else
+            commits = commitRepo.findByUserIdDto(user.getId());
+            
         return commits;
     }
 
