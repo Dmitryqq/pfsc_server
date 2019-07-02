@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.pfscServer.repo.FileTypesRepo;
 import com.pfscServer.repo.RolesRepo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @Api(description = "Операции по взаимодействию с типами файлов")
 @RestController
@@ -75,7 +77,6 @@ public class FileTypeController {
         if (typeOfFileFromDb == null || role == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Role role = rolesRepo.findById(typeOfFile.getRoleId()).orElse(null);
         typeOfFile.setRole(role);
         typeOfFile.setUpdateDate(LocalDateTime.now());
         BeanUtils.copyProperties(typeOfFile, typeOfFileFromDb, "id");

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.tika.Tika;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 
@@ -44,11 +45,18 @@ public class FileController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         java.io.File tempFilePath = new java.io.File(file.getPath());
-        String contentType = request.getServletContext().getMimeType(tempFilePath.getAbsolutePath());
-        byte[] resource = FileCopyUtils.copyToByteArray(tempFilePath);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
+        Tika tika = new Tika();
+        String mimeType = tika.detect(tempFilePath);
+        MediaType contentType;
+        if(mimeType != null){
+            contentType = MediaType.parseMediaType(mimeType);
+            byte[] resource = FileCopyUtils.copyToByteArray(tempFilePath);
+            return ResponseEntity.ok()
+                .contentType(contentType)
                 .body(resource);
+        }
+        else
+            return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
     /*//Показать есть ли уникальные файлы
