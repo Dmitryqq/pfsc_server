@@ -7,6 +7,8 @@ package com.pfscServer.controller;
 
 import com.pfscServer.domain.Role;
 import com.pfscServer.repo.RolesRepo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Api(description = "Операции по взаимодействию с ролями (роли статичны и операции над ролями не проводятся)")
 @RestController
 @RequestMapping("role")
 public class RoleController {
@@ -25,8 +28,8 @@ public class RoleController {
         this.roleRepo = roleRepo;
     }
 
-    
 
+    @ApiOperation(value = "Получение списка всех ролей")
     @GetMapping
     public  ResponseEntity<List<Role>> list() {
         List<Role> roles = roleRepo.findAll();
@@ -35,8 +38,8 @@ public class RoleController {
         }
         return new ResponseEntity<>(roles, HttpStatus.OK);
     }
-    
-//@JsonView(Views.FullRole.class)
+
+    @ApiOperation(value = "Получение названия роли по id")
     @GetMapping("{id}")
     public ResponseEntity<Role> getOne(@PathVariable("id") Long roleId) {
         if (roleId == null) {
@@ -48,9 +51,9 @@ public class RoleController {
         }
         return new ResponseEntity<>(role, HttpStatus.OK);
     }
-    
 
 
+    @ApiOperation(value = "Создание роли (не используется)")
     @PostMapping
     public ResponseEntity<Role> create(@RequestBody Role role) {
         if (role == null) {
@@ -60,6 +63,7 @@ public class RoleController {
         return new ResponseEntity<>(role, HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Обновление роли (не используется)")
     @PutMapping("{id}")
     public ResponseEntity<Role> update(
             @PathVariable("id") Long roleId,
@@ -74,6 +78,7 @@ public class RoleController {
         return new ResponseEntity<>(roleFromDb, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Удаление роли (не используется)")
     @DeleteMapping("{id}")
     public ResponseEntity<Role> delete(@PathVariable("id") Long roleId) {
         Role role = roleRepo.findById(roleId).orElse(null);
