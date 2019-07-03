@@ -17,10 +17,15 @@ import com.pfscServer.util.FileArray;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.util.FileCopyUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +33,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 public class FileServiceImpl implements EntityService<File, Long>, FileService {
@@ -192,6 +198,24 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
             }
         }
         return null;
+    }
+
+    public void fileValidation(Long commitId) throws IOException, ServiceException {
+        String message = "";
+        Config fileRequired = configRepo.findFirstByName("fileRequired");
+        if (fileRequired.getValue().equals("true")) {
+            message = comparison(commitId);
+            if (message != null) {
+                throw new ServiceException("Файл " + message + " повторяется ", HttpStatus.BAD_REQUEST);
+            }
+        }
+        message = fileRequired(commitId);
+        System.out.println(message);
+        if (message == null) {
+
+        } else {
+            throw new ServiceException("Нет файлов в папке " + message , HttpStatus.BAD_REQUEST);// мб стоит вывести более информативно
+        }
     }
 
     public void fileOperation(String path, Long commitId, Long fileId, FileType typeOfFile, MultipartFile[] files) throws IOException, ServiceException {

@@ -4,10 +4,14 @@ import com.pfscServer.domain.ApplicationUser;
 import com.pfscServer.domain.Commit;
 import com.pfscServer.domain.Config;
 import com.pfscServer.domain.Mark;
+import com.pfscServer.exception.ServiceException;
 import com.pfscServer.repo.*;
+import com.pfscServer.util.DateUtil;
+import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -20,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,41 +38,46 @@ public class MailSenderServiceImpl implements MailSenderService {
     @Autowired
     private ConfigsRepo configRepo;
 
+
     @Value("${spring.mail.username}")
     private String username;
 
 
-
     @Override
-    public void send(ApplicationUser user, boolean status, Commit commit, String messageText) throws MessagingException, IOException {
-        Mark mark = markRepo.findById(commit.getMarkId()).orElse(null);
-        sendEngine(status, commit, user, messageText);
-        Config rootDir = configRepo.findFirstByName("ABD");
-        if (status == true) {
-            MimeMessage message = mailSender.createMimeMessage();
-            boolean multipart = true;
-            MimeMessageHelper mailMessage = new MimeMessageHelper(message, multipart);
-            mailMessage.setFrom(username);//поменять
-            mailMessage.setTo(rootDir.getValue());//кому передать вычислить
-            mailMessage.setSubject("Прошу принять накат");//тему тоже подписать
-            String text = mailTemplateFile("ABD.txt");
-            text = text.replaceFirst("nameABD", user.getName());
-            text = text.replaceFirst("priz", mark.getName());
-            text = text.replaceFirst("opic", commit.getDescription());
-            mailMessage.setText(text);//описание вытащить из бд
-            List<String> allFile = fileRepo.allFiles(commit.getId(), 2l);
-            if (allFile.size() != 0) {
+    public void send(ApplicationUser user, boolean status, Commit commit, String messageText) throws MessagingException, IOException, ServiceException {
+        try {
+            Mark mark = markRepo.findById(commit.getMarkId()).orElse(null);
+            sendEngine(status, commit, user, messageText);
+            Config rootDir = configRepo.findFirstByName("ABD");
 
-                int i = 0;
-                for (String tempFile : allFile) {
-                    i++;
-                    FileSystemResource file = new FileSystemResource(new File(tempFile));
-                    mailMessage.addAttachment("Накат файл " + i, file);
+            if (status == true ) {
+                MimeMessage message = mailSender.createMimeMessage();
+                boolean multipart = true;
+                MimeMessageHelper mailMessage = new MimeMessageHelper(message, multipart);
+                mailMessage.setFrom(username);//поменять
+                mailMessage.setTo(rootDir.getValue());//кому передать вычислить
+                mailMessage.setSubject("Прошу принять накат");//тему тоже подписать
+                String text = mailTemplateFile("ABD.txt");
+                text = text.replaceFirst("nameABD", rootDir.getDescription());
+                text = text.replaceFirst("priz", mark.getName());
+                text = text.replaceFirst("opic", commit.getDescription());
+                mailMessage.setText(text);//описание вытащить из бд
+                List<String> allFile = fileRepo.allFiles(commit.getId(), 2l);
+                if (allFile.size() != 0) {
+                    int i = 0;
+                    for (String tempFile : allFile) {
+                        i++;
+                        FileSystemResource file = new FileSystemResource(new File(tempFile));
+                        String temp = FileUtil.getFileExtension(file.getFilename());
+                        mailMessage.addAttachment("Накат файл " + i + "." + temp, file);
+                    }
                 }
+
+                mailSender.send(message);
+
             }
-
-            mailSender.send(message);
-
+        } catch (Exception e) {
+            throw new ServiceException("Произошла ошибка при отправке письма", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -78,9 +88,10 @@ public class MailSenderServiceImpl implements MailSenderService {
         String messageStatus = (status) ? "принят" : "отклонен";
         mailMessage.setSubject("Накат был " + messageStatus);
         String text = mailTemplateFile("prog.txt");
-        text = text.replaceFirst("name", user.getName());
+        text = text.replaceFirst("name", user.getName());//пока что так, потом надо придумать
         text = text.replaceFirst("NumberCommit", commit.getNumber() + "");
-        text = text.replaceFirst("data", commit.getCreateDate() + "");
+        LocalDateTime commitDate = DateUtil.convertToDate(commit.getCreateDate() + " 00:00", "dd-MM-yyyy HH:mm");
+        text = text.replaceFirst("data", commitDate + "");
         text = text.replaceFirst("status", messageStatus);
         if (messageStatus.equals("принят")) {
             text = text.replaceFirst("Becose", "");
