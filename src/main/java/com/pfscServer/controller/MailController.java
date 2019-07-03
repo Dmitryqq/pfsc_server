@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import java.io.IOException;
 
-@Api(description = "???")
+@Api(description = "Операции по отправке письма ")
 @RestController
 @RequestMapping("mail")
 public class MailController {
@@ -20,7 +20,7 @@ public class MailController {
     MailSenderServiceImpl mailSenderServiceImpl;
 
 
-    @ApiOperation(value = "???")
+    @ApiOperation(value = "Проверка отправки письма")
     @GetMapping
     public String list() throws IOException, MessagingException {
         Long id = 87l;
