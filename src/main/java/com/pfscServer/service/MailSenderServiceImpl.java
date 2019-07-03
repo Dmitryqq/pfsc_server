@@ -90,7 +90,7 @@ public class MailSenderServiceImpl implements MailSenderService {
         String text = mailTemplateFile("prog.txt");
         text = text.replaceFirst("name", user.getName());//пока что так, потом надо придумать
         text = text.replaceFirst("NumberCommit", commit.getNumber() + "");
-        LocalDateTime commitDate = DateUtil.convertToDate(commit.getCreateDate() + " 00:00", "dd-MM-yyyy HH:mm");
+        String commitDate = DateUtil.getDateString(commit.getCreateDate(), "-");
         text = text.replaceFirst("data", commitDate + "");
         text = text.replaceFirst("status", messageStatus);
         if (messageStatus.equals("принят")) {
