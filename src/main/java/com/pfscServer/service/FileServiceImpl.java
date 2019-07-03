@@ -17,15 +17,10 @@ import com.pfscServer.util.FileArray;
 import com.pfscServer.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -202,7 +197,7 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
 
     public void fileValidation(Long commitId) throws IOException, ServiceException {
         String message = "";
-        Config fileRequired = configRepo.findFirstByName("fileRequired");
+        Config fileRequired = configRepo.findFirstByName("checkFiles");
         if (fileRequired.getValue().equals("true")) {
             message = comparison(commitId);
             if (message != null) {

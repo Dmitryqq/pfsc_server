@@ -57,7 +57,7 @@ public class CommitHistoryServiceImpl implements CommitHistoryService {
         ApplicationUser user = userRepo.findById(commit.getUserId()).orElse(null);
         if (historyRepo.findByCommitIdAndActivity(id, Activity.REJECT.getTitle()).size() > 0 || historyRepo.findByCommitIdAndActivity(id, Activity.ACCEPT.getTitle()).size() > 0)
             throw new ServiceException("Данное действие заблокировано", HttpStatus.LOCKED);
-        Config mailDir = configRepo.findFirstByName("Mail");
+        Config mailDir = configRepo.findFirstByName("sendMails");
         if (mailDir.getValue().equals("true")) {
             mailSenderServiceImpl.send(user, true, commit, "");
         }

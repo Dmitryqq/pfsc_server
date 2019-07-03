@@ -52,7 +52,7 @@ public class CommitHistoryController {
 
         } catch (MessagingException e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServiceException("Произошла ошибка при отправке письма", HttpStatus.BAD_GATEWAY);
         }
     }
 
@@ -69,7 +69,7 @@ public class CommitHistoryController {
             return new ResponseEntity<>(history, HttpStatus.OK);
         } catch (MessagingException e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ServiceException("Произошла ошибка при отправке письма", HttpStatus.BAD_GATEWAY);
         }
     }
 }

@@ -77,7 +77,7 @@ public class MailSenderServiceImpl implements MailSenderService {
 
             }
         } catch (Exception e) {
-            throw new ServiceException("Произошла ошибка при отправке письма", HttpStatus.BAD_REQUEST);
+            throw new ServiceException("Произошла ошибка при отправке письма", HttpStatus.BAD_GATEWAY);
         }
     }
 
