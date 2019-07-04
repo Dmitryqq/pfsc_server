@@ -75,6 +75,8 @@ public class FileServiceImpl implements EntityService<File, Long>, FileService {
                                 (user.getRole().getRoleName().equals("Admin") || user.getRole().getId() == file.getFileType().getRoleId())
         ))
             throw new ServiceException("Удаление файла типа \"" + file.getFileType().getName() + "\" данным пользователем запрещено", HttpStatus.FORBIDDEN);
+        if (!historyRepo.findByCommitIdAndActivity(file.getcommit_id(), Activity.REJECT.getTitle()).isEmpty() || !file.getFileType().isEnableAfterAccept() && !historyRepo.findByCommitIdAndActivity(file.getcommit_id(), Activity.ACCEPT.getTitle()).isEmpty()) 
+            throw new ServiceException("Удаление файла для данного наката заблокировано", HttpStatus.LOCKED);
         Path path = Paths.get(file.getPath());
         Files.delete(path);
         fileRepo.delete(file);
