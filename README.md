@@ -18,3 +18,7 @@ java -jar target/pfscServer.jar
 ```
 ## Остальные переменные хранятся в базе данных в таблице "configs":
 ![alt text](configs.jpg)
+##Документация по работе с API
+```
+http://localhost:8080/swagger-ui.html#/
+```

@@ -87,6 +87,12 @@ public class UserController {
         if (userFromDb == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        ApplicationUser userWithUName = applicationUserRepository.findByUsername(user.getUsername());
+        if(userWithUName != null){
+            if(user.getId() != userWithUName.getId()){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+        }
         Role role = rolesRepo.findById(user.getRoleId()).orElse(null);
         user.setRole(role);
         if(user.getPassword()==""){
